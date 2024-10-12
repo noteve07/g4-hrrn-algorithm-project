@@ -2,7 +2,7 @@
  * ICSC-0113 | OPERATING SYSTEMS | BSCS-SD2A | GROUP 4
  *
  * NOTE: This is the all-in-one file version of the HRRN algorithm, 
- * compiled for ease of execution. For a more simplified, modular
+ * compiled for ease of execution. For a more modular, simplified
  * and refactored version, refer to the 'src' directory.
  * 
  */

@@ -338,7 +338,18 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     public void initializeOutputPanel() {
-        
+        // panel properties
+        panelOutput = new JPanel();
+        panelOutput.setLayout(null);
+        panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
+
+        // gantt chart panel
+        panelGanttChart = new JPanel();
+
+        // components
+        JButton buttonFinish = new JButton("Finish");
+
+        //
     }
     
     

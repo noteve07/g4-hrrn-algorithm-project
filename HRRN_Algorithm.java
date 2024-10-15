@@ -75,7 +75,7 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     
-    public HRRN_GUI_Layout() {
+    public HRRN_Algorithm() {
         initializeInputPanel();
         initializeOutputPanel();
         initializeFrame();
@@ -392,7 +392,7 @@ public class HRRN_Algorithm implements ActionListener {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                HRRN_GUI_Layout systemGUI = new HRRN_Algorithm();
+                HRRN_Algorithm systemGUI = new HRRN_Algorithm();
             }
         });
     }
@@ -402,3 +402,4 @@ public class HRRN_Algorithm implements ActionListener {
 
 
 
+    

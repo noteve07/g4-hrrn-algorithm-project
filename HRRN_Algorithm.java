@@ -43,24 +43,19 @@ public class HRRN_Algorithm implements ActionListener {
     private JButton buttonRun;
     
     // input table components
-    JTable table;
-    DefaultTableModel model;
+    private JTable table;
+    private DefaultTableModel model;
         
     
-    // gantt chart and calculation output components
-    
+    // output gantt chart components
+    private JButton buttonFinish;
+    private JLabel labelGanttChart;
+    private JLabel labelCalculations;
+    private JLabel labelAverageWaitingTime;
     
     // color objects
     private final Color backgroundColor = new Color(209, 222, 222);    
     private final Color underlineColor = new Color(102, 150, 134);
-    private final Color[] processColors = {
-        new Color(173, 216, 230), // Pastel Blue
-        new Color(119, 221, 119), // Pastel Green
-        new Color(255, 255, 153), // Pastel Yellow
-        new Color(255, 192, 203), // Pastel Red
-        new Color(179, 158, 227), // Pastel Purple
-        new Color(255, 204, 153)  // Pastel Orange
-    };
             
     // other properties
     private int WIDTH = 900;
@@ -349,7 +344,7 @@ public class HRRN_Algorithm implements ActionListener {
         
 
         // components
-        JButton buttonFinish = new JButton("Finish");
+        buttonFinish = new JButton("Finish");
         
        
         // add components to output panel

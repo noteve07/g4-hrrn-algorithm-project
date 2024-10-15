@@ -102,7 +102,7 @@ public class HRRN_Algorithm implements ActionListener {
         
         // add panels to frame
         frame.add(panelInput);
-//        frame.add(panelGanttChart);
+        frame.add(panelOutput);
     }
     
     
@@ -286,7 +286,6 @@ public class HRRN_Algorithm implements ActionListener {
                 return super.stopCellEditing();
             }
         };
-
         
         // apply the cell editor to all columns
         table.setDefaultEditor(Object.class, cellEditor);
@@ -345,17 +344,25 @@ public class HRRN_Algorithm implements ActionListener {
 
         // gantt chart panel
         panelGanttChart = new JPanel();
+        panelGanttChart.setBackground(new Color(150, 150, 150));
+        panelGanttChart.setBounds(100, 150, 700, 200);
+        
 
         // components
         JButton buttonFinish = new JButton("Finish");
-
-        //
+        
+       
+        // add components to output panel
+        
+        panelOutput.add(panelGanttChart);
+        panelOutput.add(buttonFinish);
+        
     }
     
     
     
     // GANTT CHART AND CALCULATIONS
-    public void initializeGanttChartPanel() {
+    public void generateGanttChart() {
         // panel properties
         panelGanttChart = new JPanel();
     }
@@ -384,6 +391,14 @@ public class HRRN_Algorithm implements ActionListener {
                 }
                 table.repaint(); 
             }
+            case "Run Algorithm" -> {
+                // show output panel
+                System.out.println("LOG: Run Algorithm Button");
+                panelInput.setVisible(false);
+                panelOutput.setVisible(true);
+                panelGanttChart.setVisible(true);
+                
+            }
             
         }
     }
@@ -402,4 +417,3 @@ public class HRRN_Algorithm implements ActionListener {
 
 
 
-    

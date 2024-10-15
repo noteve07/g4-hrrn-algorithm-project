@@ -66,7 +66,7 @@ public class HRRN_Algorithm implements ActionListener {
     
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
-    
+    private ArrayList<Process> processes = new ArrayList<>();
     
     
     
@@ -364,6 +364,66 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     
+    
+    
+    // INPUT TABLE METHODS
+    
+    public boolean validateTableInput() {
+        // traverse through each rows and determine if have blank
+        for (int row = 0; row < table.getRowCount(); row++) {
+            Object artInput = table.getValueAt(row, 1);
+            Object brtInput = table.getValueAt(row, 2);
+            if (artInput.equals("___") || brtInput.equals("___")) {
+                return false;
+            } 
+        }                
+        // if no ___ is found, then it is not empty
+        return true;
+    }
+    
+    
+    public int[][] retrieveInputData() {
+        // array to store input from the table for each proccesses 
+        int[][] dataArray = new int[numberOfProcesses][3];
+        for (int row = 0; row < numberOfProcesses; row++) {
+            // arrival time and burst time
+            int artInput = Integer.parseInt(table.getValueAt(row, 1).toString());
+            int brtInput = Integer.parseInt(table.getValueAt(row, 2).toString());
+            
+            // add each record to an array
+            dataArray[row][0] = row + 1;
+            dataArray[row][1] = artInput;
+            dataArray[row][2] = brtInput;
+            
+            // LOG
+            System.out.println("LOG: retrieveInputData() -> P" + (row+1) + ": " + artInput  + ", " + brtInput);
+        } 
+        // return the 2d array for instantiation
+        return dataArray;
+    }
+    
+    
+    public void createProcesses(int[][] inputData) {
+        for (int p = 0; p < inputData.length; p++) {
+            // get data from each row input
+            int id = inputData[p][0];
+            int arrivalTime = inputData[p][1];
+            int burstTime = inputData[p][2];
+            
+            // create the process object for this row input
+            Process process = new Process(id, arrivalTime, burstTime);
+            
+            // then add to process collections
+            processes.add(process);
+        }
+    }
+    
+    public void displayInputError() {
+        
+    }
+            
+            
+    
     // ACTION LISTENER METHOD
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -379,14 +439,40 @@ public class HRRN_Algorithm implements ActionListener {
                 buttonClear.setVisible(true);
                 buttonRun.setVisible(true);
             }
+            
             case "Clear" -> {
                 for (int row = 0; row < table.getRowCount(); row++) {
                     table.setValueAt("___", row, 1);
                     table.setValueAt("___", row, 2);
                 }
                 table.repaint(); 
+                
             }
             case "Run Algorithm" -> {
+                // clear selection first to save user input
+                if (table.getCellEditor() != null) {
+                    table.getCellEditor().stopCellEditing();
+                }
+                table.clearSelection();
+                table.repaint();
+
+                // validate first if input are valid and not empty
+                if (validateTableInput()) {
+                    // if valid get the table data and convert to processes 
+                    System.out.println("LOG: buttonRun -> Input Valid");
+                    int[][] inputData = retrieveInputData();
+                    createProcesses(inputData);
+                } else {
+                    // otherwise show an input error
+                    System.out.println("LOG: buttonRun -> Input Invalid");
+                    displayInputError();
+                    break;
+                }
+                
+                
+                
+                
+                
                 // show output panel
                 System.out.println("LOG: Run Algorithm Button");
                 panelInput.setVisible(false);
@@ -412,3 +498,21 @@ public class HRRN_Algorithm implements ActionListener {
 
 
 
+
+class Process {
+    int id;
+    int arrivalTime;
+    int burstTime;
+    int waitingTime;
+    int turnAroundTime;
+    double responseRatio;
+    
+    Process(int id, int arrivalTime, int burstTime) {
+        this.id = id;
+        this.arrivalTime = arrivalTime;
+        this.burstTime = burstTime;
+        this.waitingTime = 0;
+        this.turnAroundTime = 0;
+        this.responseRatio = 0.0;
+    }
+}

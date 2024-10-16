@@ -1,3 +1,4 @@
+
 /**
  * ICSC-0113 | OPERATING SYSTEMS | BSCS-SD2A | GROUP 4
  *
@@ -382,41 +383,22 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
-    public int[][] retrieveInputData() {
-        // array to store input from the table for each proccesses 
-        int[][] dataArray = new int[numberOfProcesses][3];
+    public void parseInputData() {
+        // parse the raw input from the table to Process objects
         for (int row = 0; row < numberOfProcesses; row++) {
-            // arrival time and burst time
+            // get data from each row input
             int artInput = Integer.parseInt(table.getValueAt(row, 1).toString());
             int brtInput = Integer.parseInt(table.getValueAt(row, 2).toString());
             
-            // add each record to an array
-            dataArray[row][0] = row + 1;
-            dataArray[row][1] = artInput;
-            dataArray[row][2] = brtInput;
+            // create the process object for this row
+            Process process = new Process(row + 1, artInput, brtInput);
             
-            // LOG
-            System.out.println("LOG: retrieveInputData() -> P" + (row+1) + ": " + artInput  + ", " + brtInput);
-        } 
-        // return the 2d array for instantiation
-        return dataArray;
-    }
-    
-    
-    public void createProcesses(int[][] inputData) {
-        for (int p = 0; p < inputData.length; p++) {
-            // get data from each row input
-            int id = inputData[p][0];
-            int arrivalTime = inputData[p][1];
-            int burstTime = inputData[p][2];
-            
-            // create the process object for this row input
-            Process process = new Process(id, arrivalTime, burstTime);
-            
-            // then add to process collections
+            // then add to array collections of processes
             processes.add(process);
+            System.out.println("LOG: parseInputData() -> Process(" + (row+1) + ", " + artInput + ", " + brtInput + ")");
         }
     }
+    
     
     public void displayInputError() {
         
@@ -460,8 +442,7 @@ public class HRRN_Algorithm implements ActionListener {
                 if (validateTableInput()) {
                     // if valid get the table data and convert to processes 
                     System.out.println("LOG: buttonRun -> Input Valid");
-                    int[][] inputData = retrieveInputData();
-                    createProcesses(inputData);
+                    parseInputData();
                 } else {
                     // otherwise show an input error
                     System.out.println("LOG: buttonRun -> Input Invalid");

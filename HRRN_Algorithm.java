@@ -1,3 +1,4 @@
+package hrrn_github;
 
 /**
  * ICSC-0113 | OPERATING SYSTEMS | BSCS-SD2A | GROUP 4
@@ -42,6 +43,8 @@ public class HRRN_Algorithm implements ActionListener {
     private JButton buttonLoad;
     private JButton buttonClear;
     private JButton buttonRun;
+    private JLabel labelInputError;
+
     
     // input table components
     private JTable table;
@@ -113,7 +116,6 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.setLayout(null);
         panelInput.setBounds(0, 0, WIDTH, HEIGHT); // Set size and position
         
-        
 
         // get number of processes input
         labelNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
@@ -136,32 +138,36 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.add(fieldNumProcesses);
         panelInput.add(buttonNumProceed);
                
-        // create button components
+        // create components
         buttonLoad = new JButton("Load Example Data");
         buttonClear = new JButton("Clear");
         buttonRun = new JButton("Run Algorithm");
+        labelInputError = new JLabel("Please complete all table fields to proceed.");
         buttonLoad.setVisible(false);
         buttonClear.setVisible(false);
         buttonRun.setVisible(false);
+        labelInputError.setVisible(false);
         
-        // set button fonts
+        // set fonts
+        labelInputError.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        labelInputError.setForeground(new Color(150, 50, 50));
         
-        // set button size and position
+        // set size and position
         buttonLoad.setBounds(50, 470, 280, 50);
         buttonClear.setBounds(330, 470, 200, 50);
         buttonRun.setBounds(530, 470, 300, 50);
+        labelInputError.setBounds(530, 520, 300, 30);
         
         // add components to panel
         panelInput.add(buttonLoad);
         panelInput.add(buttonClear);
         panelInput.add(buttonRun);
+        panelInput.add(labelInputError);
         
         // add action listeners
         buttonLoad.addActionListener(this);        
         buttonClear.addActionListener(this);
         buttonRun.addActionListener(this);
-        
-        
         
     }
     
@@ -210,9 +216,10 @@ public class HRRN_Algorithm implements ActionListener {
 
                 // if editing a cell, keep the hover effect intact
                 if (isEditing()) {
-                    c.setBackground(getBackground()); // Reset background color
-                    c.setForeground(Color.BLACK); // Reset color
-                    ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2)); // Keep the border during editing
+                    // highlight the text field using a lighter color
+                    c.setBackground(getBackground()); 
+                    c.setForeground(Color.BLACK); 
+                    ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2));
                 }
 
                 return c;
@@ -225,20 +232,21 @@ public class HRRN_Algorithm implements ActionListener {
             public void mouseMoved(MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
 
-                // If we hover over a different row
+                // if we hover over a different row
                 if (row != hoveredRow) {
-                    // If a cell is being edited, stop editing to commit changes
+                    // if a cell is being edited, stop editing to commit changes
                     if (table.isEditing()) {
-                        table.getCellEditor().stopCellEditing(); // Commit changes
+                        // deselect cell and save changes
+                        table.getCellEditor().stopCellEditing();
                     }
                     
-                    hoveredRow = row; // Update the currently hovered row
-                    table.clearSelection(); // Optionally clear selection
-                    table.repaint(); // Repaint the table to reflect changes
-                }
-            }
+                    // update the currently hovered row
+                    hoveredRow = row; 
+                    table.clearSelection();
+                    table.repaint();
+                }                
+            }            
         });
-
 
         // customize the cell editor input field
         DefaultCellEditor cellEditor = new DefaultCellEditor(new JTextField()) {
@@ -378,7 +386,8 @@ public class HRRN_Algorithm implements ActionListener {
                 return false;
             } 
         }                
-        // if no ___ is found, then it is not empty
+
+        // if no ___ is found, then it is valid and not empty
         return true;
     }
     
@@ -401,7 +410,10 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     public void displayInputError() {
+        // show error to user if input is invalid
+        labelInputError.setVisible(true);
         
+        // then hide again if user decided to edit the table
     }
             
             
@@ -422,11 +434,34 @@ public class HRRN_Algorithm implements ActionListener {
                 buttonRun.setVisible(true);
             }
             
+            case "Load Example Data" -> {
+                // generate adjacent random arrival time for simplicity
+                // Create a list of int[] arrays to represent the 2D array
+                ArrayList<int[]> exampleData = new ArrayList<>();
+                exampleData.add(new int[]{0, 2});
+                exampleData.add(new int[]{1, 4});
+                exampleData.add(new int[]{2, 3});
+                exampleData.add(new int[]{3, 5});
+                exampleData.add(new int[]{4, 2});                
+                exampleData.add(new int[]{5, 1});
+
+                // Shuffle the ArrayList
+                Collections.shuffle(exampleData.subList(0, numberOfProcesses));
+                
+                // hide message if from an error
+                labelInputError.setVisible(false);
+                table.repaint(); 
+                
+            }
+            
             case "Clear" -> {
+                // set all cells to blank
                 for (int row = 0; row < table.getRowCount(); row++) {
                     table.setValueAt("___", row, 1);
                     table.setValueAt("___", row, 2);
                 }
+                // hide message if from an error
+                labelInputError.setVisible(false);
                 table.repaint(); 
                 
             }
@@ -469,7 +504,7 @@ public class HRRN_Algorithm implements ActionListener {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                HRRN_Algorithm systemGUI = new HRRN_Algorithm();
+                HRRN_Algorithm systemGUI = new HRRN_Algorithm();                
             }
         });
     }

@@ -435,19 +435,21 @@ public class HRRN_Algorithm implements ActionListener {
             }
             
             case "Load Example Data" -> {
-                // generate adjacent random arrival time for simplicity
-                // Create a list of int[] arrays to represent the 2D array
-                ArrayList<int[]> exampleData = new ArrayList<>();
-                exampleData.add(new int[]{0, 2});
-                exampleData.add(new int[]{1, 4});
-                exampleData.add(new int[]{2, 3});
-                exampleData.add(new int[]{3, 5});
-                exampleData.add(new int[]{4, 2});                
-                exampleData.add(new int[]{5, 1});
-
-                // Shuffle the ArrayList
-                Collections.shuffle(exampleData.subList(0, numberOfProcesses));
+                // create random input
+                int[][] sample = {
+                    {3, 5}, {1, 4},
+                    {4, 2}, {0, 2},
+                    {2, 3}, {5, 1},
+                };
                 
+                ArrayList<int[]> exampleData = new ArrayList<>();
+                
+                for (int i = 0; i < numberOfProcesses; i++) {
+                    exampleData.add(sample[i]);
+                }
+                
+                Collections.shuffle(exampleData);
+;                
                 // hide message if from an error
                 labelInputError.setVisible(false);
                 table.repaint(); 

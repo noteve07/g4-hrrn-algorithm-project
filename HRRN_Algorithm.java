@@ -426,9 +426,9 @@ public class HRRN_Algorithm implements ActionListener {
         int arrivalTimeI, arrivalTimeJ, burstTimeI, burstTimeJ;
         
         // sort first by arrival time using selection sort
-        for (int i = 0; i < processes.size(); i++) {
+        for (int i = 0; i < processes.size() - 1; i++) {
             minIndex = i;
-            for (int j = 1; j < processes.size()-1; j++) {
+            for (int j = i + 1; j < processes.size(); j++) {
                 // retrieve arrival and burst time for both processes
                 arrivalTimeI = processes.get(i).arrivalTime;
                 arrivalTimeJ = processes.get(j).arrivalTime;
@@ -452,7 +452,77 @@ public class HRRN_Algorithm implements ActionListener {
             processes.set(i, processes.get(minIndex));
             processes.set(minIndex, temp);
         }
+        
+        
+        
+        int currentTime = 0;
+        boolean finished = false;
+        while (!finished) {
+            // store arrived processes that are to be executed
+            ArrayList<Process> arrivedProcesses = new ArrayList<>();
+            
+            // check for processes that have arrived
+            for (Process process : processes) {
+                if (process.arrivalTime <= currentTime) {
+                    // compute for response ratio
+                    process.waitingTime = currentTime - process.arrivalTime;
+                    process.responseRatio = (double) (process.waitingTime + process.burstTime) / process.burstTime;
+                    
+                    // add the first process to arrive during current time
+                    if (arrivedProcesses.isEmpty()) {
+                        arrivedProcesses.add(process);
+                    } else {
+                        // if has higher ratio make it the first element
+                        if (arrivedProcesses.get(0).responseRatio < process.responseRatio) {
+                            arrivedProcesses.add(0, process);
+                        }
+                    }
+                }
+            }
+            
+            
+            System.out.print("LOG: [" + currentTime + "] {");
+            for (Process process : arrivedProcesses) {
+                
+                System.out.print(process.id);
+                System.out.print(" ");
+            }
+            System.out.println("}");
+            
+            // if no pending processes, move on to next second 
+            if (arrivedProcesses.isEmpty()) {
+                currentTime++;
+                continue;
+            }
+            
+//            // compute for response ratio of each pending processes
+//            for (Process process : arrivedProcesses) {
+//                process.waitingTime = currentTime - process.arrivalTime;
+//                process.responseRatio = (process.waitingTime - process.burstTime) / process.burstTime;
+//            }
+
+            Process executedProcess = arrivedProcesses.get(0);
+            executedProcess.turnAroundTime = currentTime - executedProcess.arrivalTime;
+            currentTime += executedProcess.burstTime;
+            
+            scheduledProcesses.add(executedProcess);
+            processes.remove(executedProcess);
+            
+            
+            // end the algorithm when all processes are scheduled
+            if (processes.isEmpty()) {
+                finished = true;
+                System.out.println("LOG: Algorithm End");
+            }
+        }
+        
+        // display processes on console for logging and debugging
         displayProcessesContents();
+        
+        System.out.println("\n\t==========\n");
+        
+        // display scheduled processes and its data
+        displayScheduledProcessesContents();
     }
     
     
@@ -466,6 +536,17 @@ public class HRRN_Algorithm implements ActionListener {
             System.out.println("Process: " + process.id);
             System.out.println("\tArrival Time: " + process.arrivalTime);
             System.out.println("\tBurst Time: " + process.burstTime + "\n");
+        }
+    }
+    
+    public void displayScheduledProcessesContents() {
+        for (Process process : scheduledProcesses) {
+            System.out.println("Process: " + process.id);
+            System.out.println("\tArrival Time: " + process.arrivalTime);
+            System.out.println("\tBurst Time: " + process.burstTime);
+            System.out.println("\tWaiting Time: " + process.waitingTime);
+            System.out.println("\tTurn Around Time: " + process.turnAroundTime);
+            System.out.println("\tResponse Ratio: " + process.responseRatio + "\n");
         }
     }
             
@@ -543,8 +624,8 @@ public class HRRN_Algorithm implements ActionListener {
                     break;
                 }
                 
-                
-                
+                // execute computation for scheduling processes
+                runSchedulingAlgorithm();
                 
                 
                 // show output panel

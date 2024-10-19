@@ -71,7 +71,7 @@ public class HRRN_Algorithm implements ActionListener {
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
     private ArrayList<Process> processes = new ArrayList<>();
-    
+    private ArrayList<Process> scheduledProcesses = new ArrayList<>();
     
     
     public HRRN_Algorithm() {
@@ -414,6 +414,59 @@ public class HRRN_Algorithm implements ActionListener {
         labelInputError.setVisible(true);
         
         // then hide again if user decided to edit the table
+    }
+    
+    
+    
+    
+    // SCHEDULING ALGORITHM COMPUTATIONS HRRN
+    public void runSchedulingAlgorithm() {
+        // initialize local variables
+        int minIndex;
+        int arrivalTimeI, arrivalTimeJ, burstTimeI, burstTimeJ;
+        
+        // sort first by arrival time using selection sort
+        for (int i = 0; i < processes.size(); i++) {
+            minIndex = i;
+            for (int j = 1; j < processes.size()-1; j++) {
+                // retrieve arrival and burst time for both processes
+                arrivalTimeI = processes.get(i).arrivalTime;
+                arrivalTimeJ = processes.get(j).arrivalTime;
+                burstTimeI = processes.get(i).arrivalTime;
+                burstTimeJ = processes.get(j).arrivalTime;
+                    
+                // change min index if lower is found
+                if (arrivalTimeI > arrivalTimeJ) {
+                    minIndex = j;
+                } 
+                
+                if (arrivalTimeI == arrivalTimeJ) {
+                    if (burstTimeI > burstTimeJ) {
+                        minIndex = j;
+                    }
+                }
+            }
+            
+            // swap if necessary
+            Process temp = processes.get(i  );
+            processes.set(i, processes.get(minIndex));
+            processes.set(minIndex, temp);
+        }
+        displayProcessesContents();
+    }
+    
+    
+    public void sortByArrivalTime() {
+        // REFACTOR HERE
+    }
+    
+    
+    public void displayProcessesContents() {
+        for (Process process : processes) {
+            System.out.println("Process: " + process.id);
+            System.out.println("\tArrival Time: " + process.arrivalTime);
+            System.out.println("\tBurst Time: " + process.burstTime + "\n");
+        }
     }
             
             

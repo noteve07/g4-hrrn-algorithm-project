@@ -468,7 +468,7 @@ public class HRRN_Algorithm implements ActionListener {
         first.endTime = first.arrivalTime + first.burstTime;
         first.waitingTime = 0;
         first.turnAroundTime = first.burstTime;
-        first.responseRatio = (first.waitingTime + first.burstTime) + first.burstTime;
+        first.responseRatio = (first.waitingTime + first.burstTime) / first.burstTime;
         scheduledProcesses.add(first);
         processes.remove(first);
         
@@ -512,13 +512,14 @@ public class HRRN_Algorithm implements ActionListener {
                     selectedProcess = process;
                 }
             }       
-            LPeT += selectedProcess.burstTime;
-            LPeT = selectedProcess.endTime;
-            selectedProcess.turnAroundTime = LPeT - selectedProcess.arrivalTime;
-            selectedProcess.startTime = LPeT;
+            selectedProcess.startTime = LPeT;  
             selectedProcess.endTime = LPeT + selectedProcess.burstTime;
+            selectedProcess.waitingTime = selectedProcess.startTime - selectedProcess.arrivalTime;
+            selectedProcess.responseRatio = (double) (selectedProcess.waitingTime + selectedProcess.burstTime) / selectedProcess.burstTime;
+            selectedProcess.turnAroundTime = selectedProcess.endTime - selectedProcess.arrivalTime;                                              
             scheduledProcesses.add(selectedProcess);
             processes.remove(selectedProcess);
+            LPeT = selectedProcess.endTime;
                         
             
             

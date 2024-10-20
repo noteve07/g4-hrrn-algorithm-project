@@ -497,9 +497,12 @@ public class HRRN_Algorithm implements ActionListener {
             }       
             
             
-            // STEP 4: update the current time and process turn around time
-            currentTime += selectedProcess.burstTime;
-            selectedProcess.turnAroundTime = currentTime - selectedProcess.arrivalTime;
+            // STEP 4: update the current time and process attributes
+            selectedProcess.startTime = currentTime;
+            currentTime += selectedProcess.burstTime; // execute
+            selectedProcess.endTime = currentTime;
+            selectedProcess.turnAroundTime = selectedProcess.endTime - selectedProcess.arrivalTime;
+            
             
             
             
@@ -553,6 +556,8 @@ public class HRRN_Algorithm implements ActionListener {
             System.out.println("Process: " + process.id);
             System.out.println("\tArrival Time: " + process.arrivalTime);
             System.out.println("\tBurst Time: " + process.burstTime);
+            System.out.println("\tStart Time: " + process.startTime);
+            System.out.println("\tEnd Time: " + process.endTime);
             System.out.println("\tWaiting Time: " + process.waitingTime);
             System.out.println("\tTurn Around Time: " + process.turnAroundTime);
             System.out.println("\tResponse Ratio: " + process.responseRatio + "\n");
@@ -667,6 +672,8 @@ class Process {
     int id;
     int arrivalTime;
     int burstTime;
+    int startTime;
+    int endTime;
     int waitingTime;
     int turnAroundTime;
     double responseRatio;
@@ -675,6 +682,8 @@ class Process {
         this.id = id;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
+        this.startTime = 0;
+        this.endTime = 0;
         this.waitingTime = 0;
         this.turnAroundTime = 0;
         this.responseRatio = 0.0;

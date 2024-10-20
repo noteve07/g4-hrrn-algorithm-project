@@ -1,3 +1,4 @@
+
 package hrrn_github;
 
 /**
@@ -461,62 +462,48 @@ public class HRRN_Algorithm implements ActionListener {
     
     public void runSchedulingAlgorithm(ArrayList<Process> processes) {
         
-        // STEP 1: run the process with the earliest arrival time
-        processes = sortByArrivalTime(processes);       
-        Process first = processes.get(0);
-        first.startTime = first.arrivalTime;
-        first.endTime = first.arrivalTime + first.burstTime;
-        first.waitingTime = 0;
-        first.turnAroundTime = first.burstTime;
-        first.responseRatio = (first.waitingTime + first.burstTime) + first.burstTime;
-        scheduledProcesses.add(first);
-        processes.remove(first);
+        // STEP 1: sort each processes by arrival time
+        processes = sortByArrivalTime(processes);
         
         
-        int LPeT = first.endTime;
+        int currentTime = 0;
         while (!processes.isEmpty()) {
-            Process selectedProcess;
             
-            // STEP 2: Assess the end time & the AT of the remaining process
+            // STEP 2: store processes that have arrived during the current time
             ArrayList<Process> arrivedProcesses = new ArrayList<>();
             for (Process process : processes) {
-                if (process.arrivalTime <= LPeT) {
+                if (process.arrivalTime <= currentTime) {
                     arrivedProcesses.add(process);
                 }
-            }     
+            }            
             
-            // if processes have arrived, move on to next second 
+            
+            // if no pending processes, move on to next second 
             if (arrivedProcesses.isEmpty()) {
-                LPeT += 1;
+                currentTime++;
                 continue;
             }
             
             
-            
-            if (arrivedProcesses.size() == 1) {
-                // STEP 2-A: if process == 1, then run the said process
-                selectedProcess = arrivedProcesses.get(0);
-            } else {
-                // STEP 2-B: else, solve for the response ratio
-                for (Process process : arrivedProcesses) {
-                    process.waitingTime = LPeT - process.arrivalTime;
-                    process.responseRatio = (double) (process.waitingTime + process.burstTime) / process.burstTime;
-                }
-            
-            }
-            
-            // STEP 2-C: run the process with the highest response ratio
-            selectedProcess = arrivedProcesses.get(0);
+            // STEP 3: compute and look for the highest response ratio among each pending processes
+            Process selectedProcess = arrivedProcesses.get(0);
             for (Process process : arrivedProcesses) {
+                process.waitingTime = currentTime - process.arrivalTime;
+                process.responseRatio = (double) (process.waitingTime + process.burstTime) / process.burstTime;
+                
                 if (process.responseRatio > selectedProcess.responseRatio) {
                     selectedProcess = process;
                 }
             }       
-            LPeT += selectedProcess.burstTime;
-            LPeT = selectedProcess.endTime;
-            selectedProcess.turnAroundTime = LPeT - selectedProcess.arrivalTime;
-            selectedProcess.startTime = LPeT;
-            selectedProcess.endTime = LPeT + selectedProcess.burstTime;
+            
+            
+            // STEP 4: update the current time and process turn around time
+            currentTime += selectedProcess.burstTime;
+            selectedProcess.turnAroundTime = currentTime - selectedProcess.arrivalTime;
+            
+            
+            
+            // STEP 5: add the process object to processes schedule
             scheduledProcesses.add(selectedProcess);
             processes.remove(selectedProcess);
                         
@@ -524,12 +511,12 @@ public class HRRN_Algorithm implements ActionListener {
             
             // add essential information to procedural data for visualization
             Process[][] executionInfo = new Process[][]{arrivedProcesses.toArray(new Process[0]), {selectedProcess}};
-            proceduralData.put(LPeT, executionInfo);
+            proceduralData.put(currentTime, executionInfo);
             
             
             
             // LOGS
-            System.out.print("LOG: [" + LPeT + "] {");
+            System.out.print("LOG: [" + currentTime + "] {");
             for (Process process : arrivedProcesses) {
                 
                 System.out.print("("+process.id + ": " + process.responseRatio + "), ");
@@ -673,12 +660,13 @@ public class HRRN_Algorithm implements ActionListener {
 
 
 
+
+
+
 class Process {
     int id;
     int arrivalTime;
     int burstTime;
-    int startTime;
-    int endTime;
     int waitingTime;
     int turnAroundTime;
     double responseRatio;
@@ -687,8 +675,6 @@ class Process {
         this.id = id;
         this.arrivalTime = arrivalTime;
         this.burstTime = burstTime;
-        this.startTime = 0;
-        this.endTime = 0;
         this.waitingTime = 0;
         this.turnAroundTime = 0;
         this.responseRatio = 0.0;

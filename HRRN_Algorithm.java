@@ -28,45 +28,40 @@ import javax.swing.table.JTableHeader;
 
 
 public class HRRN_Algorithm implements ActionListener {    
+    
     // frame and panel components
     JFrame frame;
     JPanel panelInput;
     JPanel panelOutput;
     JPanel panelGanttChart;
     
-    // number of processes input components
+    // input panel components
     private JLabel labelNumProcesses;
     private JTextField fieldNumProcesses;
     private JButton buttonNumProceed;
     
-    // input panel components
     private JButton buttonLoad;
     private JButton buttonClear;
     private JButton buttonRun;
     private JLabel labelInputError;
 
-    
-    // input table components
     private JTable table;
     private DefaultTableModel model;
         
-    
     // output gantt chart components
     private JButton buttonFinish;
     private JLabel labelGanttChart;
     private JLabel labelCalculations;
     private JLabel labelAverageWaitingTime;
-    
+            
+    // screen and other properties
+    private int WIDTH = 900;
+    private int HEIGHT = 600;
+    private int hoveredRow = -1; // Variable to store the hovered row
+
     // color objects
     private final Color backgroundColor = new Color(209, 222, 222);    
     private final Color underlineColor = new Color(102, 150, 134);
-            
-    // other properties
-    private int WIDTH = 900;
-    private int HEIGHT = 600;
-    
-    private int hoveredRow = -1; // Variable to store the hovered row
-
     
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
@@ -75,19 +70,18 @@ public class HRRN_Algorithm implements ActionListener {
     private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
     
     
+    
+    // CONSTRUCTOR: program starts here
     public HRRN_Algorithm() {
+        // initialize frame and panel to create each components
         initializeInputPanel();
         initializeOutputPanel();
-        initializeFrame();
-        
-        panelInput.setVisible(true);
-        // panelOutput.setVisible(true);
-        // panelGanttChart.setVisible(false);
-        
+        initializeFrame();        
     }
     
     
-    // INITIALIZE FRAME
+    
+    // INITIALIZE FRAME PROPERTIES
     public void initializeFrame() {
         // frame properties
         frame = new JFrame("Group 4: High Response Ratio Next Algorithm");
@@ -103,11 +97,11 @@ public class HRRN_Algorithm implements ActionListener {
         // add panels to frame
         frame.add(panelInput);
         frame.add(panelOutput);
+        
+        // show first panel
+        panelInput.setVisible(true);
     }
-    
-    
- 
-    
+        
     
     
     // PANEL 1: INPUT FOR NUMBER OF PROCESSES AND THEIR ARRIVAL AND BURST TIME 
@@ -117,7 +111,6 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.setLayout(null);
         panelInput.setBounds(0, 0, WIDTH, HEIGHT); // Set size and position
         
-
         // get number of processes input
         labelNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
         fieldNumProcesses = new JTextField();
@@ -245,8 +238,16 @@ public class HRRN_Algorithm implements ActionListener {
                     hoveredRow = row; 
                     table.clearSelection();
                     table.repaint();
-                }                
-            }            
+                }
+            }
+        });
+        
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // if from an error, hide the error message 
+                labelInputError.setVisible(false);
+            }
         });
 
         // customize the cell editor input field
@@ -335,12 +336,10 @@ public class HRRN_Algorithm implements ActionListener {
         // add the scroll pane directly to the panel
         panelInput.add(scrollPane); // Add scroll pane to the main panel
     }
-
-
-
     
     
     
+    // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
     public void initializeOutputPanel() {
         // panel properties
         panelOutput = new JPanel();
@@ -348,28 +347,27 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
 
         // gantt chart panel
+        generateGanttChart();
+        
+        // components
+        buttonFinish = new JButton("Finish");
+        
+        
+        // add components to output panel
+        panelOutput.add(panelGanttChart);
+        panelOutput.add(buttonFinish);
+        
+        // add action listeners
+        buttonFinish.addActionListener(this);
+    }
+    
+    public void generateGanttChart() {
+        // gantt chart panel properties
         panelGanttChart = new JPanel();
         panelGanttChart.setBackground(new Color(150, 150, 150));
         panelGanttChart.setBounds(100, 150, 700, 200);
         
-
-        // components
-        buttonFinish = new JButton("Finish");
         
-       
-        // add components to output panel
-        
-        panelOutput.add(panelGanttChart);
-        panelOutput.add(buttonFinish);
-        
-    }
-    
-    
-    
-    // GANTT CHART AND CALCULATIONS
-    public void generateGanttChart() {
-        // panel properties
-        panelGanttChart = new JPanel();
     }
     
     

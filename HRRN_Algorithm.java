@@ -83,6 +83,7 @@ public class HRRN_Algorithm implements ActionListener {
     private int numberOfProcesses = 1;
     private ArrayList<Process> processesInput = new ArrayList<>();
     private ArrayList<Process> scheduledProcesses = new ArrayList<>();
+    private HashMap<String, Integer> chartData = new HashMap<>();
     private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
     
     
@@ -440,28 +441,60 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput = new JPanel();
         panelOutput.setLayout(null);
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
-
-        // PANEL: gantt chart
-        generateGanttChart();
-        
-        // BUTTON: finish
-        buttonFinish = new JButton("Finish");
-        
-        
-        // add components to output panel
-        panelOutput.add(panelGanttChart);
-        panelOutput.add(buttonFinish);
-        
-        // add action listeners
-        buttonFinish.addActionListener(this);
     }
     
     public void generateGanttChart() {
-        // gantt chart panel properties
-        panelGanttChart = new JPanel();
-        panelGanttChart.setBackground(new Color(150, 150, 150));
-        panelGanttChart.setBounds(100, 150, 700, 200);
+        System.out.println("LOG: Generate Gantt Chart (start)");
         
+        // temp variables
+        int chartWidth = 700;
+        int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
+        int unit = chartWidth / totalTime;
+        
+        // generate gantt chart graphics
+        panelGanttChart = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                int x = 0; // Starting x position for the Gantt chart
+                int y = 20; // Y position for the Gantt chart
+                
+                // test
+                g.setColor(new Color(30, 41,44));                
+                
+                System.out.println("LOG: panelGanttChart Graphics");
+                
+                for (int i = 0; i < numberOfProcesses; i++) {
+                    // retrieve process information
+                    Process process = scheduledProcesses.get(i);
+                    int ID = process.id;
+                    int sT = process.startTime;
+                    int BT = process.burstTime;
+                    
+                    // drawing the rectangle for the process
+                    int length = BT * unit;
+                    g.drawRect(x, y, length, 150);
+                    g.drawString("P" + ID, x + length / 2, y + 85); // Process name
+                    g.drawString(String.valueOf(sT), x, y - 10); // Start time
+
+                    x += length; // Move to the next position
+                }
+                
+                
+                g.drawString(String.valueOf(totalTime), x, y - 10); 
+            }
+        };
+        panelGanttChart.setPreferredSize(new Dimension(700, 200));
+        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelGanttChart.setBackground(new Color(220, 220, 220));
+        panelGanttChart.setBounds(90, 150, 700, 200);
+        panelGanttChart.setVisible(true); 
+        panelOutput.add(panelGanttChart);
+        
+              
+        
+        
+        System.out.println("LOG: Generate Gantt Chart (end)");
         
     }
     
@@ -632,8 +665,9 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
-    public void sortByArrivalTime() {
-        // REFACTOR HERE
+    public void collectChartData() {
+        // get essential data from the scheduled algorithm for gantt chart
+        
     }
     
     
@@ -757,9 +791,12 @@ public class HRRN_Algorithm implements ActionListener {
                 
                 // show output panel
                 System.out.println("LOG: Run Algorithm Button");
-//                panelInput.setVisible(false);
-//                panelOutput.setVisible(true);
-//                panelGanttChart.setVisible(true);
+                panelInput.setVisible(false);
+                panelOutput.setVisible(true);
+                
+                // then show gantt chart
+                generateGanttChart();
+                
                 
             }
             

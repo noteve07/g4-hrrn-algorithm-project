@@ -69,17 +69,15 @@ public class HRRN_Algorithm implements ActionListener {
     private int hoveredRow = -1; // Variable to store the hovered row
 
     // LIGHT MODE
-//    private final Color primaryColor = new Color(235, 235, 235);    
-//    private final Color backgroundColor = new Color(209, 222, 222);    
-//    private final Color textColor = new Color(10, 10, 10);    
-    
-    
+    private final Color primaryColor = new Color(235, 235, 235);    
+    private final Color backgroundColor = new Color(209, 222, 222);    
+    private final Color textColor = new Color(10, 10, 10);    
     
     // DARK MODE
-    private final Color primaryColor = new Color(34, 40, 44);
-    private final Color textColor = new Color(235, 235, 235);
-    private final Color backgroundColor = new Color(44, 51, 60);    
-    
+//    private final Color primaryColor = new Color(34, 40, 44);
+//    private final Color textColor = new Color(235, 235, 235);
+//    private final Color backgroundColor = new Color(44, 51, 60);    
+//    
   
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
@@ -103,16 +101,18 @@ public class HRRN_Algorithm implements ActionListener {
     
     // INITIALIZE FRAME PROPERTIES
     public void initializeFrame() {
-        // frame properties
+        // create main frame component
         frame = new JFrame("Group 4: High Response Ratio Next Algorithm") {
             @Override
             public void paint(Graphics g) {
-                // Enable anti-aliasing for smoother edges
+                // enable anti-aliasing for smoother edges
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 super.paint(g);
             }
         };
+        
+        // set frame properties
         frame.setSize(WIDTH, HEIGHT);
         frame.setLocation(500, 175);
         frame.setLocationRelativeTo(null);
@@ -136,38 +136,18 @@ public class HRRN_Algorithm implements ActionListener {
     
     // PANEL 1: INPUT FOR NUMBER OF PROCESSES AND THEIR ARRIVAL AND BURST TIME 
     public void initializeInputPanel() {
-        // input panel
+        // create input panel component
         panelInput = new JPanel() {
-            private BufferedImage bufferedImage;
-
             @Override
             protected void paintComponent(Graphics g) {
+                // draw rectangle at the top
                 super.paintComponent(g);
-                
-                // Create the buffered image if it hasn't been created yet
-                if (bufferedImage == null || bufferedImage.getWidth() != getWidth() || bufferedImage.getHeight() != getHeight()) {
-                    // Create the buffered image at a larger scale for smoother rendering
-                    bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g2 = bufferedImage.createGraphics();
-
-                    // Enable anti-aliasing
-                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-                    g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
-                    
-                    // Set the color and paint the rectangle
-                    g2.setColor(primaryColor); // Color for the rectangle
-                    g2.fillRect(0, 0, getWidth(), 50);  // Paints a rectangle at the top
-                    g2.dispose();
-                }
-
-                // Draw the buffered image onto the panel
-                g.drawImage(bufferedImage, 0, 0, null);
+                g.setColor(primaryColor);
+                g.fillRect(0, 0, getWidth(), 50);
             }
         };
         
-        panelInput.setBackground(Color.LIGHT_GRAY); 
-        // panel properties
+        // set panel properties
         panelInput.setLayout(null);
         panelInput.setBounds(0, 0, WIDTH, HEIGHT);
         panelInput.setBackground(backgroundColor); // Set background color
@@ -456,15 +436,15 @@ public class HRRN_Algorithm implements ActionListener {
     
     // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
     public void initializeOutputPanel() {
-        // panel properties
+        // create output panel component
         panelOutput = new JPanel();
         panelOutput.setLayout(null);
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
 
-        // gantt chart panel
+        // PANEL: gantt chart
         generateGanttChart();
         
-        // components
+        // BUTTON: finish
         buttonFinish = new JButton("Finish");
         
         

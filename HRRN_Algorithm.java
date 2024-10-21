@@ -16,6 +16,8 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import javax.swing.text.NumberFormatter;
 import javax.swing.border.EmptyBorder;
@@ -37,8 +39,8 @@ public class HRRN_Algorithm implements ActionListener {
     JPanel panelGanttChart;
     
     // input panel components
-    JLabel titleLabel;
-    JLabel descriptionLabel;
+    private JLabel labelTitle;
+    private JLabel labelDescription;
     private JLabel labelNumProcesses;
     private JTextField fieldNumProcesses;
     private JLabel labelNumProcessesInput;
@@ -58,20 +60,34 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelCalculations;
     private JLabel labelAverageWaitingTime;
             
+    
+    
+    
     // screen and other properties
     private int WIDTH = 900;
     private int HEIGHT = 600;
     private int hoveredRow = -1; // Variable to store the hovered row
 
-    // color objects
-    private final Color backgroundColor = new Color(209, 222, 222);    
-    private final Color underlineColor = new Color(102, 150, 134);
+    // LIGHT MODE
+//    private final Color primaryColor = new Color(235, 235, 235);    
+//    private final Color backgroundColor = new Color(209, 222, 222);    
+//    private final Color textColor = new Color(10, 10, 10);    
     
+    
+    
+    // DARK MODE
+    private final Color primaryColor = new Color(34, 40, 44);
+    private final Color textColor = new Color(235, 235, 235);
+    private final Color backgroundColor = new Color(44, 51, 60);    
+    
+  
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
     private ArrayList<Process> processesInput = new ArrayList<>();
     private ArrayList<Process> scheduledProcesses = new ArrayList<>();
     private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
+    
+    
     
     
     
@@ -88,11 +104,20 @@ public class HRRN_Algorithm implements ActionListener {
     // INITIALIZE FRAME PROPERTIES
     public void initializeFrame() {
         // frame properties
-        frame = new JFrame("Group 4: High Response Ratio Next Algorithm");
+        frame = new JFrame("Group 4: High Response Ratio Next Algorithm") {
+            @Override
+            public void paint(Graphics g) {
+                // Enable anti-aliasing for smoother edges
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                super.paint(g);
+            }
+        };
         frame.setSize(WIDTH, HEIGHT);
         frame.setLocation(500, 175);
         frame.setLocationRelativeTo(null);
         frame.setUndecorated(true);
+        frame.setShape(new RoundRectangle2D.Double(0, 0, WIDTH, HEIGHT, 50, 50));
         frame.setVisible(true);
         frame.setLayout(null);
         frame.setResizable(false);
@@ -111,83 +136,120 @@ public class HRRN_Algorithm implements ActionListener {
     
     // PANEL 1: INPUT FOR NUMBER OF PROCESSES AND THEIR ARRIVAL AND BURST TIME 
     public void initializeInputPanel() {
-        // panel properties
+        // input panel
         panelInput = new JPanel() {
+            private BufferedImage bufferedImage;
+
             @Override
             protected void paintComponent(Graphics g) {
-                super.paintComponent(g); // This ensures the panel paints its default appearance
-                g.setColor(new Color(235, 235, 235)); // Set the color to white
-                g.fillRect(0, 0, getWidth(), 50); // Draw a white rectangle at the top (x, y, width, height)
+                super.paintComponent(g);
+                
+                // Create the buffered image if it hasn't been created yet
+                if (bufferedImage == null || bufferedImage.getWidth() != getWidth() || bufferedImage.getHeight() != getHeight()) {
+                    // Create the buffered image at a larger scale for smoother rendering
+                    bufferedImage = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2 = bufferedImage.createGraphics();
+
+                    // Enable anti-aliasing
+                    g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                    g2.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+                    g2.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
+                    
+                    // Set the color and paint the rectangle
+                    g2.setColor(primaryColor); // Color for the rectangle
+                    g2.fillRect(0, 0, getWidth(), 50);  // Paints a rectangle at the top
+                    g2.dispose();
+                }
+
+                // Draw the buffered image onto the panel
+                g.drawImage(bufferedImage, 0, 0, null);
             }
         };
+        
+        panelInput.setBackground(Color.LIGHT_GRAY); 
+        // panel properties
         panelInput.setLayout(null);
         panelInput.setBounds(0, 0, WIDTH, HEIGHT);
         panelInput.setBackground(backgroundColor); // Set background color
-
-        // title label
-        titleLabel = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titleLabel.setBounds(50, 10, 800, 30);
-        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        panelInput.add(titleLabel);
         
-        // description label
-        descriptionLabel = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
-        descriptionLabel.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        descriptionLabel.setBounds(50, 50, 800, 60);
-        panelInput.add(descriptionLabel);
+        createInputComponents();
 
-        // get number of processes input
+    }
+    public void createInputComponents() {
+        // LABEL: title 
+        labelTitle = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle.setForeground(textColor);
+        labelTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));       
+        labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTitle.setBounds(50, 10, 800, 30);
+        panelInput.add(labelTitle);
+        
+        // LABEL: description 
+        labelDescription = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
+        labelDescription.setForeground(textColor);
+        labelDescription.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        labelDescription.setBounds(50, 50, 800, 60);
+        panelInput.add(labelDescription);
+
+        // LABEL: enter number of processes
         labelNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
-        fieldNumProcesses = new JTextField();
-        labelNumProcessesInput = new JLabel("");
-        buttonNumProceed = new JButton("Proceed");
-
-        // set font
+        labelNumProcesses.setForeground(textColor);
         labelNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        fieldNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-
-        // set bounds
         labelNumProcesses.setBounds(50, 120, 300, 30);
+        panelInput.add(labelNumProcesses);        
+        
+        // FIELD: gets the number of processes input (1-6)
+        fieldNumProcesses = new JTextField();
+        fieldNumProcesses.setForeground(textColor);
+        fieldNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         fieldNumProcesses.setBounds(400, 120, 50, 30);
+        panelInput.add(fieldNumProcesses);        
+        
+        // BUTTON: proceed
+        buttonNumProceed = new JButton("Proceed");
+        buttonNumProceed.setForeground(textColor);
+        buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         buttonNumProceed.setBounds(500, 120, 100, 30);
-        buttonNumProceed.addActionListener(this);
-
-        // add to panel
-        panelInput.add(labelNumProcesses);
-        panelInput.add(fieldNumProcesses);
         panelInput.add(buttonNumProceed);
+        
+        // LABEL: display of input value after proceed
+        labelNumProcessesInput = new JLabel("");
+        labelNumProcessesInput.setForeground(textColor);
+        labelNumProcessesInput.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelNumProcessesInput.setBounds(230, 50, 50, 30);
         panelInput.add(labelNumProcessesInput);
 
-        // create components for action buttons
+        // BUTTON: load example data
         buttonLoad = new JButton("Load Example Data");
+        buttonLoad.setBounds(50, 485, 280, 50);
+        panelInput.add(buttonLoad);
+        
+        // BUTTON: clear
         buttonClear = new JButton("Clear");
+        buttonClear.setBounds(330, 485, 200, 50);
+        panelInput.add(buttonClear);
+        
+        // BUTTON: run algorithm
         buttonRun = new JButton("Run Algorithm");
+        buttonRun.setBounds(530, 485, 300, 50);
+        panelInput.add(buttonRun);
+        
+        // LABEL: table input error message
         labelInputError = new JLabel("Please complete all table fields to proceed.");
+        labelInputError.setForeground(new Color(150, 50, 50));
+        labelInputError.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        labelInputError.setBounds(530, 530, 300, 30); // Adjust position for visibility
+        panelInput.add(labelInputError);
+
+        
+        // hide table buttons first
         buttonLoad.setVisible(false);
         buttonClear.setVisible(false);
         buttonRun.setVisible(false);
-        labelInputError.setVisible(false);
-
-        // set fonts
-        labelNumProcessesInput.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        labelInputError.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        labelInputError.setForeground(new Color(150, 50, 50));
-
-        // set size and position
-        buttonLoad.setBounds(50, 485, 280, 50);
-        buttonClear.setBounds(330, 485, 200, 50);
-        buttonRun.setBounds(530, 485, 300, 50);
-        labelInputError.setBounds(530, 530, 300, 30); // Adjust position for visibility
-
-        // add components to panel
-        panelInput.add(buttonLoad);
-        panelInput.add(buttonClear);
-        panelInput.add(buttonRun);
-        panelInput.add(labelInputError);
+        labelInputError.setVisible(false);     
 
         // add action listeners
+        buttonNumProceed.addActionListener(this);
         buttonLoad.addActionListener(this);
         buttonClear.addActionListener(this);
         buttonRun.addActionListener(this);
@@ -378,6 +440,14 @@ public class HRRN_Algorithm implements ActionListener {
         button.addActionListener(this);
         return button;
     }
+    
+    public JLabel createModernLabel(String text, int fontSize) {
+        JLabel label = new JLabel(text);
+        label.setForeground(textColor);
+        
+        return label;
+    }
+    
     
     
     
@@ -617,25 +687,31 @@ public class HRRN_Algorithm implements ActionListener {
         
         switch (action) {
             case "Proceed" -> {
-                numberOfProcesses = Integer.parseInt(fieldNumProcesses.getText());
-                // create the table according to number of processes
-                createInputTable();
-                
-                // show the number of processes using label after input 
+                // hide description, text field and proceed button
+                labelDescription.setVisible(false);
                 fieldNumProcesses.setVisible(false);
+                buttonNumProceed.setVisible(false);
+                
+                // retrieve data from the text field
+                numberOfProcesses = Integer.parseInt(fieldNumProcesses.getText());
+                
+                // show and move the label to display input value
                 labelNumProcesses.setText("Number of Processes: ");
                 labelNumProcesses.setBounds(50, 50, 180, 30);
                 labelNumProcessesInput.setText(String.valueOf(numberOfProcesses));
-                labelNumProcessesInput.setFont(new Font("Segoe UI", Font.BOLD, 18));
-                labelNumProcessesInput.setBounds(230, 50, 50, 30);
+                labelNumProcessesInput.setVisible(true);
                 
-                // hide description and start to show other buttons
-                descriptionLabel.setVisible(false);
-                buttonNumProceed.setVisible(false);
+                
+                // create the table according to number of processes
+                createInputTable();
+                
+                // and start to show table function buttons
                 buttonLoad.setVisible(true);
                 buttonClear.setVisible(true);
                 buttonRun.setVisible(true);
                 
+                
+                System.out.println("LOG: Proceed Button Pressed");
                 
             }
             

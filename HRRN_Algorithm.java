@@ -55,7 +55,7 @@ public class HRRN_Algorithm implements ActionListener {
     private DefaultTableModel model;
         
     // output gantt chart components
-    private JButton buttonFinish;
+    private JLabel labelTitle2;
     private JLabel labelGanttChart;
     private JLabel labelCalculations;
     private JLabel labelAverageWaitingTime;
@@ -77,7 +77,7 @@ public class HRRN_Algorithm implements ActionListener {
 //    private final Color primaryColor = new Color(34, 40, 44);
 //    private final Color textColor = new Color(235, 235, 235);
 //    private final Color backgroundColor = new Color(44, 51, 60);    
-//    
+    
   
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
@@ -436,11 +436,51 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
+    
     public void initializeOutputPanel() {
         // create output panel component
-        panelOutput = new JPanel();
+        panelOutput = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // draw rectangle at the top
+                super.paintComponent(g);
+                g.setColor(primaryColor);
+                g.fillRect(0, 0, getWidth(), 50);
+            }
+        };
         panelOutput.setLayout(null);
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
+        panelOutput.setBackground(backgroundColor);
+        
+        // LABEL: title bar
+        labelTitle2 = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle2.setForeground(textColor);
+        labelTitle2.setFont(new Font("Segoe UI", Font.BOLD, 24));       
+        labelTitle2.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTitle2.setBounds(50, 10, 800, 30);
+        panelOutput.add(labelTitle2);
+        
+        // LABEL: gantt chart
+        labelGanttChart = new JLabel("GANTT CHART");
+        labelGanttChart.setForeground(new Color(150, 150, 150));
+        labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        labelGanttChart.setBounds(340, 50, 200, 30); // Adjust position for visibility
+        panelOutput.add(labelGanttChart);        
+        
+        // LABEL: calculations
+        labelCalculations = new JLabel("CALCULATIONS");
+        labelCalculations.setForeground(new Color(150, 150, 150));
+        labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
+        labelCalculations.setBounds(340, 320, 200, 30); // Adjust position for visibility
+        panelOutput.add(labelCalculations);        
+        
+        // PANEL: calculations (temporary)
+        JPanel panelCalculations = new JPanel();
+        panelCalculations.setBackground(new Color(200, 200, 200));
+        panelCalculations.setBounds(90, 350, 700, 200);
+        panelOutput.add(panelCalculations);
+        
     }
     
     public void generateGanttChart() {
@@ -487,16 +527,16 @@ public class HRRN_Algorithm implements ActionListener {
         panelGanttChart.setPreferredSize(new Dimension(700, 200));
         panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelGanttChart.setBackground(new Color(220, 220, 220));
-        panelGanttChart.setBounds(90, 150, 700, 200);
+        panelGanttChart.setBounds(90, 100, 700, 200);
         panelGanttChart.setVisible(true); 
         panelOutput.add(panelGanttChart);
         
               
         
         
-        System.out.println("LOG: Generate Gantt Chart (end)");
-        
+        System.out.println("LOG: Generate Gantt Chart (end)");   
     }
+    
     
     
     

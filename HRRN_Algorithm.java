@@ -16,6 +16,8 @@ import java.util.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.RoundRectangle2D;
+import java.awt.image.BufferedImage;
 import java.text.NumberFormat;
 import javax.swing.text.NumberFormatter;
 import javax.swing.border.EmptyBorder;
@@ -37,8 +39,11 @@ public class HRRN_Algorithm implements ActionListener {
     JPanel panelGanttChart;
     
     // input panel components
+    private JLabel labelTitle;
+    private JLabel labelDescription;
     private JLabel labelNumProcesses;
     private JTextField fieldNumProcesses;
+    private JLabel labelNumProcessesInput;
     private JButton buttonNumProceed;
     
     private JButton buttonLoad;
@@ -50,25 +55,38 @@ public class HRRN_Algorithm implements ActionListener {
     private DefaultTableModel model;
         
     // output gantt chart components
-    private JButton buttonFinish;
+    private JLabel labelTitle2;
     private JLabel labelGanttChart;
     private JLabel labelCalculations;
     private JLabel labelAverageWaitingTime;
             
+    
+    
+    
     // screen and other properties
     private int WIDTH = 900;
     private int HEIGHT = 600;
     private int hoveredRow = -1; // Variable to store the hovered row
 
-    // color objects
+    // LIGHT MODE
+    private final Color primaryColor = new Color(235, 235, 235);    
     private final Color backgroundColor = new Color(209, 222, 222);    
-    private final Color underlineColor = new Color(102, 150, 134);
+    private final Color textColor = new Color(10, 10, 10);    
     
+    // DARK MODE
+//    private final Color primaryColor = new Color(34, 40, 44);
+//    private final Color textColor = new Color(235, 235, 235);
+//    private final Color backgroundColor = new Color(44, 51, 60);    
+    
+  
     // important values for scheduling calculations
     private int numberOfProcesses = 1;
     private ArrayList<Process> processesInput = new ArrayList<>();
     private ArrayList<Process> scheduledProcesses = new ArrayList<>();
+    private HashMap<String, Integer> chartData = new HashMap<>();
     private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
+    
+    
     
     
     
@@ -84,11 +102,23 @@ public class HRRN_Algorithm implements ActionListener {
     
     // INITIALIZE FRAME PROPERTIES
     public void initializeFrame() {
-        // frame properties
-        frame = new JFrame("Group 4: High Response Ratio Next Algorithm");
+        // create main frame component
+        frame = new JFrame("Group 4: High Response Ratio Next Algorithm") {
+            @Override
+            public void paint(Graphics g) {
+                // enable anti-aliasing for smoother edges
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                super.paint(g);
+            }
+        };
+        
+        // set frame properties
         frame.setSize(WIDTH, HEIGHT);
         frame.setLocation(500, 175);
         frame.setLocationRelativeTo(null);
+        frame.setUndecorated(true);
+        frame.setShape(new RoundRectangle2D.Double(0, 0, WIDTH, HEIGHT, 50, 50));
         frame.setVisible(true);
         frame.setLayout(null);
         frame.setResizable(false);
@@ -107,64 +137,105 @@ public class HRRN_Algorithm implements ActionListener {
     
     // PANEL 1: INPUT FOR NUMBER OF PROCESSES AND THEIR ARRIVAL AND BURST TIME 
     public void initializeInputPanel() {
-        // panel properties
-        panelInput = new JPanel();
+        // create input panel component
+        panelInput = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // draw rectangle at the top
+                super.paintComponent(g);
+                g.setColor(primaryColor);
+                g.fillRect(0, 0, getWidth(), 50);
+            }
+        };
+        
+        // set panel properties
         panelInput.setLayout(null);
-        panelInput.setBounds(0, 0, WIDTH, HEIGHT); // Set size and position
+        panelInput.setBounds(0, 0, WIDTH, HEIGHT);
+        panelInput.setBackground(backgroundColor); // Set background color
         
-        // get number of processes input
+        createInputComponents();
+
+    }
+    public void createInputComponents() {
+        // LABEL: title 
+        labelTitle = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle.setForeground(textColor);
+        labelTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));       
+        labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTitle.setBounds(50, 10, 800, 30);
+        panelInput.add(labelTitle);
+        
+        // LABEL: description 
+        labelDescription = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
+        labelDescription.setForeground(textColor);
+        labelDescription.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        labelDescription.setBounds(50, 50, 800, 60);
+        panelInput.add(labelDescription);
+
+        // LABEL: enter number of processes
         labelNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
-        fieldNumProcesses = new JTextField();
-        buttonNumProceed = new JButton("Proceed");
-        
-        // set font
+        labelNumProcesses.setForeground(textColor);
         labelNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        labelNumProcesses.setBounds(50, 120, 300, 30);
+        panelInput.add(labelNumProcesses);        
+        
+        // FIELD: gets the number of processes input (1-6)
+        fieldNumProcesses = new JTextField();
+        fieldNumProcesses.setForeground(textColor);
         fieldNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        fieldNumProcesses.setBounds(400, 120, 50, 30);
+        panelInput.add(fieldNumProcesses);        
+        
+        // BUTTON: proceed
+        buttonNumProceed = new JButton("Proceed");
+        buttonNumProceed.setForeground(textColor);
         buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        
-        // set bounds
-        labelNumProcesses.setBounds(200, 10, 300, 30);
-        fieldNumProcesses.setBounds(500, 10, 50, 30);
-        buttonNumProceed.setBounds(600, 10, 100, 30);
-        buttonNumProceed.addActionListener(this);
-        
-        // add to panel
-        panelInput.add(labelNumProcesses);
-        panelInput.add(fieldNumProcesses);
+        buttonNumProceed.setBounds(500, 120, 100, 30);
         panelInput.add(buttonNumProceed);
-               
-        // create components
+        
+        // LABEL: display of input value after proceed
+        labelNumProcessesInput = new JLabel("");
+        labelNumProcessesInput.setForeground(textColor);
+        labelNumProcessesInput.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelNumProcessesInput.setBounds(230, 50, 50, 30);
+        panelInput.add(labelNumProcessesInput);
+
+        // BUTTON: load example data
         buttonLoad = new JButton("Load Example Data");
+        buttonLoad.setBounds(50, 485, 280, 50);
+        panelInput.add(buttonLoad);
+        
+        // BUTTON: clear
         buttonClear = new JButton("Clear");
+        buttonClear.setBounds(330, 485, 200, 50);
+        panelInput.add(buttonClear);
+        
+        // BUTTON: run algorithm
         buttonRun = new JButton("Run Algorithm");
+        buttonRun.setBounds(530, 485, 300, 50);
+        panelInput.add(buttonRun);
+        
+        // LABEL: table input error message
         labelInputError = new JLabel("Please complete all table fields to proceed.");
+        labelInputError.setForeground(new Color(150, 50, 50));
+        labelInputError.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        labelInputError.setBounds(530, 530, 300, 30); // Adjust position for visibility
+        panelInput.add(labelInputError);
+
+        
+        // hide table buttons first
         buttonLoad.setVisible(false);
         buttonClear.setVisible(false);
         buttonRun.setVisible(false);
-        labelInputError.setVisible(false);
-        
-        // set fonts
-        labelInputError.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        labelInputError.setForeground(new Color(150, 50, 50));
-        
-        // set size and position
-        buttonLoad.setBounds(50, 470, 280, 50);
-        buttonClear.setBounds(330, 470, 200, 50);
-        buttonRun.setBounds(530, 470, 300, 50);
-        labelInputError.setBounds(530, 520, 300, 30);
-        
-        // add components to panel
-        panelInput.add(buttonLoad);
-        panelInput.add(buttonClear);
-        panelInput.add(buttonRun);
-        panelInput.add(labelInputError);
-        
+        labelInputError.setVisible(false);     
+
         // add action listeners
-        buttonLoad.addActionListener(this);        
+        buttonNumProceed.addActionListener(this);
+        buttonLoad.addActionListener(this);
         buttonClear.addActionListener(this);
         buttonRun.addActionListener(this);
-        
     }
+
     
     public void createInputTable() {
         // columns and data for the process input table
@@ -332,44 +403,141 @@ public class HRRN_Algorithm implements ActionListener {
 
         // set the preferred size and position for the scroll pane
         scrollPane.setPreferredSize(new Dimension(780, 390)); // Adjust size as needed
-        scrollPane.setBounds(50, 70, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
+        scrollPane.setBounds(50, 90, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
 
         // add the scroll pane directly to the panel
         panelInput.add(scrollPane); // Add scroll pane to the main panel
     }
+  
+    public JButton createModernButton(String text) {
+        JButton button = new JButton(text);
+        button.setFocusPainted(false);
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setFont(new Font("Poppins", Font.BOLD, 17));
+        button.setAlignmentX(Component.CENTER_ALIGNMENT);
+        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        button.setForeground(new Color(0, 0, 0));
+        button.addActionListener(this);
+        return button;
+    }
+    
+    public JLabel createModernLabel(String text, int fontSize) {
+        JLabel label = new JLabel(text);
+        label.setForeground(textColor);
+        
+        return label;
+    }
+    
+    
+    
+    
     
     
     
     // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
+    
     public void initializeOutputPanel() {
-        // panel properties
-        panelOutput = new JPanel();
+        // create output panel component
+        panelOutput = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                // draw rectangle at the top
+                super.paintComponent(g);
+                g.setColor(primaryColor);
+                g.fillRect(0, 0, getWidth(), 50);
+            }
+        };
         panelOutput.setLayout(null);
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
-
-        // gantt chart panel
-        generateGanttChart();
+        panelOutput.setBackground(backgroundColor);
         
-        // components
-        buttonFinish = new JButton("Finish");
+        // LABEL: title bar
+        labelTitle2 = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle2.setForeground(textColor);
+        labelTitle2.setFont(new Font("Segoe UI", Font.BOLD, 24));       
+        labelTitle2.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTitle2.setBounds(50, 10, 800, 30);
+        panelOutput.add(labelTitle2);
         
+        // LABEL: gantt chart
+        labelGanttChart = new JLabel("GANTT CHART");
+        labelGanttChart.setForeground(new Color(100, 100, 100));
+        labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        labelGanttChart.setHorizontalAlignment(SwingConstants.CENTER);
+        labelGanttChart.setBounds(0, 70, 900, 30); // Adjust position for visibility
+        panelOutput.add(labelGanttChart);        
         
-        // add components to output panel
-        panelOutput.add(panelGanttChart);
-        panelOutput.add(buttonFinish);
+        // LABEL: calculations
+        labelCalculations = new JLabel("CALCULATIONS");
+        labelCalculations.setForeground(new Color(100, 100, 100));
+        labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
+        labelCalculations.setBounds(0, 250, 900, 30); // Adjust position for visibility
+        panelOutput.add(labelCalculations);        
         
-        // add action listeners
-        buttonFinish.addActionListener(this);
+        // PANEL: calculations (temporary)
+        JPanel panelCalculations = new JPanel();
+        panelCalculations.setBackground(new Color(200, 200, 200));
+        panelCalculations.setBounds(90, 280, 700, 250);
+        panelOutput.add(panelCalculations);
+        
     }
     
     public void generateGanttChart() {
-        // gantt chart panel properties
-        panelGanttChart = new JPanel();
-        panelGanttChart.setBackground(new Color(150, 150, 150));
-        panelGanttChart.setBounds(100, 150, 700, 200);
+        System.out.println("LOG: Generate Gantt Chart (start)");
+        
+        // temp variables
+        int chartWidth = 700;
+        int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
+        int unit = (chartWidth - 10) / totalTime;
+        
+        // generate gantt chart graphics
+        panelGanttChart = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                int x = 0; // Starting x position for the Gantt chart
+                int y = 20; // Y position for the Gantt chart
+                
+                // test
+                g.setColor(new Color(30, 41,44));                
+                
+                System.out.println("LOG: panelGanttChart Graphics");
+                
+                for (int i = 0; i < numberOfProcesses; i++) {
+                    // retrieve process information
+                    Process process = scheduledProcesses.get(i);
+                    int ID = process.id;
+                    int sT = process.startTime;
+                    int BT = process.burstTime;
+                    
+                    // drawing the rectangle for the process
+                    int length = BT * unit;
+                    g.drawRect(x, y, length, 50);
+                    g.drawString("P" + ID, x + length / 2 - 5, y + 30); // Process name
+                    g.drawString(String.valueOf(sT), x, y + 65); // Start time
+
+                    x += length; // Move to the next position
+                }
+                
+                
+                g.drawString(String.valueOf(totalTime), x - 10, y + 65); 
+            }
+        };
+        panelGanttChart.setPreferredSize(new Dimension(700, 100));
+        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelGanttChart.setBackground(new Color(220, 220, 220));
+        panelGanttChart.setBounds(90, 100, 700, 100);
+        panelGanttChart.setVisible(true); 
+        panelOutput.add(panelGanttChart);
+        
+              
         
         
+        System.out.println("LOG: Generate Gantt Chart (end)");   
     }
+    
     
     
     
@@ -538,8 +706,9 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
-    public void sortByArrivalTime() {
-        // REFACTOR HERE
+    public void collectChartData() {
+        // get essential data from the scheduled algorithm for gantt chart
+        
     }
     
     
@@ -573,13 +742,32 @@ public class HRRN_Algorithm implements ActionListener {
         
         switch (action) {
             case "Proceed" -> {
+                // hide description, text field and proceed button
+                labelDescription.setVisible(false);
+                fieldNumProcesses.setVisible(false);
+                buttonNumProceed.setVisible(false);
+                
+                // retrieve data from the text field
                 numberOfProcesses = Integer.parseInt(fieldNumProcesses.getText());
+                
+                // show and move the label to display input value
+                labelNumProcesses.setText("Number of Processes: ");
+                labelNumProcesses.setBounds(50, 50, 180, 30);
+                labelNumProcessesInput.setText(String.valueOf(numberOfProcesses));
+                labelNumProcessesInput.setVisible(true);
+                
+                
                 // create the table according to number of processes
                 createInputTable();
-                // show other buttons
+                
+                // and start to show table function buttons
                 buttonLoad.setVisible(true);
                 buttonClear.setVisible(true);
                 buttonRun.setVisible(true);
+                
+                
+                System.out.println("LOG: Proceed Button Pressed");
+                
             }
             
             case "Load Example Data" -> {
@@ -646,7 +834,10 @@ public class HRRN_Algorithm implements ActionListener {
                 System.out.println("LOG: Run Algorithm Button");
                 panelInput.setVisible(false);
                 panelOutput.setVisible(true);
-                panelGanttChart.setVisible(true);
+                
+                // then show gantt chart
+                generateGanttChart();
+                
                 
             }
             

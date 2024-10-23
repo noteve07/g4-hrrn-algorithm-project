@@ -462,23 +462,24 @@ public class HRRN_Algorithm implements ActionListener {
         
         // LABEL: gantt chart
         labelGanttChart = new JLabel("GANTT CHART");
-        labelGanttChart.setForeground(new Color(150, 150, 150));
+        labelGanttChart.setForeground(new Color(100, 100, 100));
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        labelGanttChart.setBounds(340, 50, 200, 30); // Adjust position for visibility
+        labelGanttChart.setHorizontalAlignment(SwingConstants.CENTER);
+        labelGanttChart.setBounds(0, 70, 900, 30); // Adjust position for visibility
         panelOutput.add(labelGanttChart);        
         
         // LABEL: calculations
         labelCalculations = new JLabel("CALCULATIONS");
-        labelCalculations.setForeground(new Color(150, 150, 150));
+        labelCalculations.setForeground(new Color(100, 100, 100));
         labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
         labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
-        labelCalculations.setBounds(340, 320, 200, 30); // Adjust position for visibility
+        labelCalculations.setBounds(0, 250, 900, 30); // Adjust position for visibility
         panelOutput.add(labelCalculations);        
         
         // PANEL: calculations (temporary)
         JPanel panelCalculations = new JPanel();
         panelCalculations.setBackground(new Color(200, 200, 200));
-        panelCalculations.setBounds(90, 350, 700, 200);
+        panelCalculations.setBounds(90, 280, 700, 250);
         panelOutput.add(panelCalculations);
         
     }
@@ -489,7 +490,7 @@ public class HRRN_Algorithm implements ActionListener {
         // temp variables
         int chartWidth = 700;
         int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
-        int unit = chartWidth / totalTime;
+        int unit = (chartWidth - 10) / totalTime;
         
         // generate gantt chart graphics
         panelGanttChart = new JPanel() {
@@ -513,21 +514,21 @@ public class HRRN_Algorithm implements ActionListener {
                     
                     // drawing the rectangle for the process
                     int length = BT * unit;
-                    g.drawRect(x, y, length, 150);
-                    g.drawString("P" + ID, x + length / 2, y + 85); // Process name
-                    g.drawString(String.valueOf(sT), x, y - 10); // Start time
+                    g.drawRect(x, y, length, 50);
+                    g.drawString("P" + ID, x + length / 2 - 5, y + 30); // Process name
+                    g.drawString(String.valueOf(sT), x, y + 65); // Start time
 
                     x += length; // Move to the next position
                 }
                 
                 
-                g.drawString(String.valueOf(totalTime), x, y - 10); 
+                g.drawString(String.valueOf(totalTime), x - 10, y + 65); 
             }
         };
-        panelGanttChart.setPreferredSize(new Dimension(700, 200));
+        panelGanttChart.setPreferredSize(new Dimension(700, 100));
         panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelGanttChart.setBackground(new Color(220, 220, 220));
-        panelGanttChart.setBounds(90, 100, 700, 200);
+        panelGanttChart.setBounds(90, 100, 700, 100);
         panelGanttChart.setVisible(true); 
         panelOutput.add(panelGanttChart);
         

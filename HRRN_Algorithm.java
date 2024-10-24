@@ -150,13 +150,11 @@ public class HRRN_Algorithm implements ActionListener {
                 
                 // minimize button
                 g.setColor(new Color(117, 202, 185));
-                g.fillRoundRect(getWidth()-80, 5, 30, 30, 10, 10);
-                g.drawRoundRect(getWidth()-80, 5, 30, 30, 10, 10);
+                g.fillRoundRect(getWidth()-80, 5, 30, 30, 30, 30);
                 
                 // close button
                 g.setColor(new Color(202, 117, 117));
-                g.fillRoundRect(getWidth()-45, 5, 30, 30, 10, 10);
-                g.drawRoundRect(getWidth()-45, 5, 30, 30, 10, 10);
+                g.fillRoundRect(getWidth()-45, 5, 30, 30, 30, 30);
                         
                 // bottom border
                 g.setColor(new Color(200, 200, 200));
@@ -461,7 +459,19 @@ public class HRRN_Algorithm implements ActionListener {
                 // draw rectangle at the top
                 super.paintComponent(g);
                 g.setColor(primaryColor);
-                g.fillRect(0, 0, getWidth(), 50);
+                g.fillRect(0, 0, getWidth(), 40);
+                
+                // minimize button
+                g.setColor(new Color(199, 202, 117));
+                g.fillRoundRect(15, 5, 30, 30, 15, 15);
+                
+                // close button
+                g.setColor(new Color(202, 117, 117));
+                g.fillRoundRect(getWidth()-45, 5, 30, 30, 15, 15);
+                        
+                // bottom border
+                g.setColor(new Color(200, 200, 200));
+                g.fillRect(0, 40, getWidth(), 2);
             }
         };
         panelOutput.setLayout(null);
@@ -469,11 +479,11 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.setBackground(backgroundColor);
         
         // LABEL: title bar
-        labelTitle2 = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle2 = new JLabel("Group 4 | HRRN Algorithm");
         labelTitle2.setForeground(textColor);
-        labelTitle2.setFont(new Font("Segoe UI", Font.BOLD, 24));       
+        labelTitle2.setFont(new Font("Segoe UI", Font.BOLD, 18));       
         labelTitle2.setHorizontalAlignment(SwingConstants.CENTER);
-        labelTitle2.setBounds(50, 10, 800, 30);
+        labelTitle2.setBounds(50, 0, 850, 40);
         panelOutput.add(labelTitle2);
         
         // LABEL: gantt chart

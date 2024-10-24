@@ -69,9 +69,11 @@ public class HRRN_Algorithm implements ActionListener {
     private int hoveredRow = -1; // Variable to store the hovered row
 
     // LIGHT MODE
-    private final Color primaryColor = new Color(235, 235, 235);    
-    private final Color backgroundColor = new Color(209, 222, 222);    
-    private final Color textColor = new Color(10, 10, 10);    
+    private final Color primaryColor = new Color(220, 220, 220);    
+//    private final Color backgroundColor = new Color(209, 222, 222); 
+    private final Color backgroundColor = new Color(244, 245, 235); 
+    
+    private final Color textColor = new Color(35, 35, 35);    
     
     // DARK MODE
 //    private final Color primaryColor = new Color(34, 40, 44);
@@ -118,7 +120,7 @@ public class HRRN_Algorithm implements ActionListener {
         frame.setLocation(500, 175);
         frame.setLocationRelativeTo(null);
         frame.setUndecorated(true);
-        frame.setShape(new RoundRectangle2D.Double(0, 0, WIDTH, HEIGHT, 50, 50));
+        frame.setShape(new RoundRectangle2D.Double(0, 0, WIDTH, HEIGHT, 25, 25));
         frame.setVisible(true);
         frame.setLayout(null);
         frame.setResizable(false);
@@ -144,7 +146,21 @@ public class HRRN_Algorithm implements ActionListener {
                 // draw rectangle at the top
                 super.paintComponent(g);
                 g.setColor(primaryColor);
-                g.fillRect(0, 0, getWidth(), 50);
+                g.fillRect(0, 0, getWidth(), 40);
+                
+                // minimize button
+                g.setColor(new Color(117, 202, 185));
+                g.fillRoundRect(getWidth()-80, 5, 30, 30, 10, 10);
+                g.drawRoundRect(getWidth()-80, 5, 30, 30, 10, 10);
+                
+                // close button
+                g.setColor(new Color(202, 117, 117));
+                g.fillRoundRect(getWidth()-45, 5, 30, 30, 10, 10);
+                g.drawRoundRect(getWidth()-45, 5, 30, 30, 10, 10);
+                        
+                // bottom border
+                g.setColor(new Color(200, 200, 200));
+                g.fillRect(0, 40, getWidth(), 2);
             }
         };
         
@@ -158,11 +174,11 @@ public class HRRN_Algorithm implements ActionListener {
     }
     public void createInputComponents() {
         // LABEL: title 
-        labelTitle = new JLabel("Highest Response Ratio Next (HRRN) Algorithm");
+        labelTitle = new JLabel("Group 4 | HRRN Algorithm");
         labelTitle.setForeground(textColor);
-        labelTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));       
-        labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
-        labelTitle.setBounds(50, 10, 800, 30);
+        labelTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));       
+        labelTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        labelTitle.setBounds(50, 0, 850, 40);
         panelInput.add(labelTitle);
         
         // LABEL: description 
@@ -473,37 +489,44 @@ public class HRRN_Algorithm implements ActionListener {
         labelCalculations.setForeground(new Color(100, 100, 100));
         labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
         labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
-        labelCalculations.setBounds(0, 250, 900, 30); // Adjust position for visibility
+        labelCalculations.setBounds(0, 220, 900, 30); // Adjust position for visibility
         panelOutput.add(labelCalculations);        
         
         // PANEL: calculations (temporary)
         JPanel panelCalculations = new JPanel();
         panelCalculations.setBackground(new Color(200, 200, 200));
-        panelCalculations.setBounds(90, 280, 700, 250);
+        panelCalculations.setBounds(90, 250, 700, 250);
         panelOutput.add(panelCalculations);
+        
+        // BUTTON: 
         
     }
     
     public void generateGanttChart() {
-        System.out.println("LOG: Generate Gantt Chart (start)");
-        
-        // temp variables
+        // draw the gantt chart based on the calculations from the input        
         int chartWidth = 700;
+        int chartHeight = 100;
         int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
-        int unit = (chartWidth - 10) / totalTime;
+        int unit = (chartWidth - 10) / totalTime; // x multiplier for each rect
         
+        // colors for each processes in gantt chart
+        Color[] ganttChartColors = {
+            new Color(255, 182, 193), // Pastel Red
+            new Color(173, 216, 230), // Pastel Blue
+            new Color(240, 250, 153), // Pastel Yellow
+            new Color(144, 238, 144), // Pastel Green
+            new Color(255, 204, 153), // Pastel Orange
+            new Color(221, 160, 221)  // Pastel Purple
+        };
+
+
         // generate gantt chart graphics
         panelGanttChart = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
-                int x = 0; // Starting x position for the Gantt chart
-                int y = 20; // Y position for the Gantt chart
-                
-                // test
-                g.setColor(new Color(30, 41,44));                
-                
-                System.out.println("LOG: panelGanttChart Graphics");
+                int x = 10; // starting x position
+                int y = 20; // y position for the gantt chart
                 
                 for (int i = 0; i < numberOfProcesses; i++) {
                     // retrieve process information
@@ -512,27 +535,44 @@ public class HRRN_Algorithm implements ActionListener {
                     int sT = process.startTime;
                     int BT = process.burstTime;
                     
-                    // drawing the rectangle for the process
+                    // determine the length of the process rect
                     int length = BT * unit;
+                    
+                    // draw the border - 3 pixels thick, dark gray
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setStroke(new BasicStroke(3)); 
+                    g.setColor(new Color(100, 100, 100));     
                     g.drawRect(x, y, length, 50);
-                    g.drawString("P" + ID, x + length / 2 - 5, y + 30); // Process name
-                    g.drawString(String.valueOf(sT), x, y + 65); // Start time
 
-                    x += length; // Move to the next position
+                    // fill each process rect with designated colors
+                    g.setColor(ganttChartColors[i]); 
+                    g.fillRect(x + 1, y + 1, length - 2, 49);
+
+                    // write the process name inside each process rect
+                    g.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                    g.setColor(new Color(80, 80, 80)); 
+                    g.drawString("P" + ID, x + length / 2 - 5, y + 30);
+                    
+                    // write the start time below
+                    g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                    g.setColor(new Color(100, 100, 100));
+                    g.drawString(String.valueOf(sT), x, y + 65);
+                    
+                    // move to the next position
+                    x += length; 
                 }
                 
-                
+                // write the end time below at the end of the chart
                 g.drawString(String.valueOf(totalTime), x - 10, y + 65); 
             }
         };
-        panelGanttChart.setPreferredSize(new Dimension(700, 100));
-        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelGanttChart.setBackground(new Color(220, 220, 220));
-        panelGanttChart.setBounds(90, 100, 700, 100);
-        panelGanttChart.setVisible(true); 
-        panelOutput.add(panelGanttChart);
         
-              
+        // gantt chart panel properties
+        panelGanttChart.setBackground(backgroundColor);
+        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelGanttChart.setPreferredSize(new Dimension(700, 100));
+        panelGanttChart.setBounds(90, 100, 700, 100);
+        panelOutput.add(panelGanttChart);
         
         
         System.out.println("LOG: Generate Gantt Chart (end)");   
@@ -696,6 +736,7 @@ public class HRRN_Algorithm implements ActionListener {
             System.out.println("}");
         }
         
+        
         // display processes on console for logging and debugging
         displayProcessesContents();
         System.out.println(processesInput.size());
@@ -705,11 +746,7 @@ public class HRRN_Algorithm implements ActionListener {
         displayScheduledProcessesContents();
     }
     
-    
-    public void collectChartData() {
-        // get essential data from the scheduled algorithm for gantt chart
-        
-    }
+   
     
     
     public void displayProcessesContents() {

@@ -68,7 +68,7 @@ public class HRRN_Algorithm implements ActionListener {
     private int hoveredRow = -1; // Variable to store the hovered row
 
     // LIGHT MODE
-    private final Color primaryColor = new Color(183, 224, 182);
+    private final Color primaryColor = new Color(220, 220, 220);
     private final Color neutralColor = new Color(220, 220, 220);    
 //    private final Color backgroundColor = new Color(209, 222, 222); 
     private final Color backgroundColor = new Color(244, 245, 235); 
@@ -426,16 +426,12 @@ public class HRRN_Algorithm implements ActionListener {
   
     public JButton createModernButton(String text) {
         JButton button = new JButton(text);
-        button.setFont(new Font("Lato", Font.BOLD, 16));
         button.setForeground(textColor);
         button.setBackground(primaryColor);
         button.setFocusPainted(false);
         button.setBorderPainted(true);
-//        button.setContentAreaFilled(false);
-        
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setBorder(BorderFactory.createLineBorder(new Color(173, 214, 172), 2));
-        button.addActionListener(this);
+        button.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY, 1));
         return button;
     }
     
@@ -821,6 +817,12 @@ public class HRRN_Algorithm implements ActionListener {
             }
             
             case "Load Example Data" -> {
+                System.out.println("LOG: Load Example Data");
+                for (Process process : processesInput) {
+                    System.out.println("P" + process.id);
+                }
+                
+                
                 // initialize random object
                 Random random = new Random();
                 
@@ -846,6 +848,12 @@ public class HRRN_Algorithm implements ActionListener {
             }
             
             case "Clear" -> {
+                System.out.println("LOG: Clear Button");
+                for (Process process : processesInput) {
+                    System.out.println("P" + process.id);
+                }
+                
+                
                 // set all cells to blank
                 for (int row = 0; row < table.getRowCount(); row++) {
                     table.setValueAt("___", row, 1);
@@ -857,6 +865,7 @@ public class HRRN_Algorithm implements ActionListener {
                 
             }
             case "Run Algorithm" -> {
+                System.out.println("LOG: Run Algorithm Button");
                 // clear selection first to save user input
                 if (table.getCellEditor() != null) {
                     table.getCellEditor().stopCellEditing();
@@ -881,7 +890,7 @@ public class HRRN_Algorithm implements ActionListener {
                 
                 
                 // show output panel
-                System.out.println("LOG: Run Algorithm Button");
+                
                 panelInput.setVisible(false);
                 panelOutput.setVisible(true);
                 

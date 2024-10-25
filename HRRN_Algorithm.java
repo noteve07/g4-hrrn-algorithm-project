@@ -149,12 +149,12 @@ public class HRRN_Algorithm implements ActionListener {
                 g.fillRect(0, 0, getWidth(), 40);
                 
                 // minimize button
-                g.setColor(new Color(117, 202, 185));
-                g.fillRoundRect(getWidth()-80, 5, 30, 30, 30, 30);
+                g.setColor(new Color(199, 202, 117));
+                g.fillRoundRect(15, 5, 30, 30, 20, 20);
                 
                 // close button
                 g.setColor(new Color(202, 117, 117));
-                g.fillRoundRect(getWidth()-45, 5, 30, 30, 30, 30);
+                g.fillRoundRect(getWidth()-45, 5, 30, 30, 20, 20);
                         
                 // bottom border
                 g.setColor(new Color(200, 200, 200));
@@ -175,7 +175,7 @@ public class HRRN_Algorithm implements ActionListener {
         labelTitle = new JLabel("Group 4 | HRRN Algorithm");
         labelTitle.setForeground(textColor);
         labelTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));       
-        labelTitle.setHorizontalAlignment(SwingConstants.LEFT);
+        labelTitle.setHorizontalAlignment(SwingConstants.CENTER);
         labelTitle.setBounds(50, 0, 850, 40);
         panelInput.add(labelTitle);
         

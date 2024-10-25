@@ -1,5 +1,4 @@
 
-package hrrn_github;
 
 /**
  * ICSC-0113 | OPERATING SYSTEMS | BSCS-SD2A | GROUP 4
@@ -69,7 +68,8 @@ public class HRRN_Algorithm implements ActionListener {
     private int hoveredRow = -1; // Variable to store the hovered row
 
     // LIGHT MODE
-    private final Color primaryColor = new Color(220, 220, 220);    
+    private final Color primaryColor = new Color(183, 224, 182);
+    private final Color neutralColor = new Color(220, 220, 220);    
 //    private final Color backgroundColor = new Color(209, 222, 222); 
     private final Color backgroundColor = new Color(244, 245, 235); 
     
@@ -215,18 +215,19 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.add(labelNumProcessesInput);
 
         // BUTTON: load example data
-        buttonLoad = new JButton("Load Example Data");
+        buttonLoad = createModernButton("Load Example Data");
         buttonLoad.setBounds(50, 485, 280, 50);
         panelInput.add(buttonLoad);
         
         // BUTTON: clear
-        buttonClear = new JButton("Clear");
+        buttonClear = createModernButton("Clear");
         buttonClear.setBounds(330, 485, 200, 50);
         panelInput.add(buttonClear);
         
         // BUTTON: run algorithm
-        buttonRun = new JButton("Run Algorithm");
-        buttonRun.setBounds(530, 485, 300, 50);
+        buttonRun = createModernButton("Run Algorithm");
+//        buttonRun.setBackground(new Color(50, 150, 80));
+        buttonRun.setBounds(530, 485, 300, 50);       
         panelInput.add(buttonRun);
         
         // LABEL: table input error message
@@ -412,7 +413,7 @@ public class HRRN_Algorithm implements ActionListener {
 
         // wrap the table in a JScrollPane
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createMatteBorder(2, 2, 2,2, Color.LIGHT_GRAY));
+        scrollPane.setBorder(BorderFactory.createMatteBorder(2, 2, 2,2, primaryColor));//Color.LIGHT_GRAY));
         scrollPane.getViewport().setBackground(new Color(229, 245, 224)); // Match background with the table
 
         // set the preferred size and position for the scroll pane
@@ -425,13 +426,15 @@ public class HRRN_Algorithm implements ActionListener {
   
     public JButton createModernButton(String text) {
         JButton button = new JButton(text);
+        button.setFont(new Font("Lato", Font.BOLD, 16));
+        button.setForeground(textColor);
+        button.setBackground(primaryColor);
         button.setFocusPainted(false);
-        button.setBorderPainted(false);
-        button.setContentAreaFilled(false);
-        button.setFont(new Font("Poppins", Font.BOLD, 17));
+        button.setBorderPainted(true);
+//        button.setContentAreaFilled(false);
+        
         button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        button.setForeground(new Color(0, 0, 0));
+        button.setBorder(BorderFactory.createLineBorder(new Color(173, 214, 172), 2));
         button.addActionListener(this);
         return button;
     }

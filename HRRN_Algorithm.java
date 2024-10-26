@@ -220,6 +220,7 @@ public class HRRN_Algorithm implements ActionListener {
         buttonNumProceed.setForeground(textColor);
         buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         buttonNumProceed.setBounds(505, 120, 100, 30);
+        buttonNumProceed.addActionListener(this);
         panelStart.add(buttonNumProceed);
     }
     
@@ -279,7 +280,7 @@ public class HRRN_Algorithm implements ActionListener {
         // LABEL: number of processes
         labelNumProcesses = new JLabel("Number of Processes: ");
         labelNumProcesses.setForeground(new Color(85, 85, 85));
-        labelEnterNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
+        labelNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         labelNumProcesses.setBounds(640, 70, 180, 30);
         panelInput.add(labelNumProcesses);
         
@@ -314,7 +315,6 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.add(labelInputError);
 
         // add action listeners
-        buttonNumProceed.addActionListener(this);
         buttonLoad.addActionListener(this);
         buttonClear.addActionListener(this);
         buttonRun.addActionListener(this);
@@ -826,12 +826,15 @@ public class HRRN_Algorithm implements ActionListener {
     public void proceedButtonPressed() {
         // retrieve data from the text field
         numberOfProcesses = Integer.parseInt(fieldNumProcesses.getText());
-
-        // show and move the label to display input value
         labelNumProcessesInput.setText(String.valueOf(numberOfProcesses));
-
+        
         // create the table according to number of processes
         createInputTable();
+
+        // switch to input panel
+        panelStart.setVisible(false);
+        panelInput.setVisible(true);
+        
     }
     
     

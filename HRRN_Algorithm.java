@@ -497,23 +497,23 @@ public class HRRN_Algorithm implements ActionListener {
         // LABEL: gantt chart
         labelGanttChart = new JLabel("GANTT CHART");
         labelGanttChart.setForeground(new Color(90, 90, 90));
-        labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        labelGanttChart.setHorizontalAlignment(SwingConstants.CENTER);
-        labelGanttChart.setBounds(0, 70, 900, 30); // Adjust position for visibility
+        labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
+        labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
         panelOutput.add(labelGanttChart);        
         
         // LABEL: calculations
         labelCalculations = new JLabel("CALCULATIONS");
         labelCalculations.setForeground(new Color(90, 90, 90));
-        labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
-        labelCalculations.setBounds(0, 220, 900, 30); // Adjust position for visibility
+        labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelCalculations.setHorizontalAlignment(SwingConstants.LEFT);
+        labelCalculations.setBounds(70, 200, 900, 30); // Adjust position for visibility
         panelOutput.add(labelCalculations);        
         
         // PANEL: calculations (temporary)
         JPanel panelCalculations = new JPanel();
         panelCalculations.setBackground(new Color(200, 200, 200));
-        panelCalculations.setBounds(90, 250, 700, 250);
+        panelCalculations.setBounds(70, 230, 755, 320);
         panelOutput.add(panelCalculations);
         
         // BUTTON: 
@@ -522,10 +522,10 @@ public class HRRN_Algorithm implements ActionListener {
     
     public void generateGanttChart() {
         // draw the gantt chart based on the calculations from the input        
-        int chartWidth = 700;
+        int chartWidth = 780;
         int chartHeight = 100;
         int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
-        int unit = (chartWidth - 10) / totalTime; // x multiplier for each rect
+        int unit = (chartWidth - 15) / totalTime; // x multiplier for each rect
         
         // colors for each processes in gantt chart
         Color[] ganttChartColors = {
@@ -588,8 +588,8 @@ public class HRRN_Algorithm implements ActionListener {
         // gantt chart panel properties
         panelGanttChart.setBackground(backgroundColor);
         panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelGanttChart.setPreferredSize(new Dimension(700, 100));
-        panelGanttChart.setBounds(90, 100, 700, 100);
+        panelGanttChart.setPreferredSize(new Dimension(780, 100));
+        panelGanttChart.setBounds(60, 85, 780, 100);
         panelOutput.add(panelGanttChart);
         
         

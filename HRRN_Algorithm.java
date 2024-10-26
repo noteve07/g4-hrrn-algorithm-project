@@ -496,7 +496,7 @@ public class HRRN_Algorithm implements ActionListener {
         
         // LABEL: gantt chart
         labelGanttChart = new JLabel("GANTT CHART");
-        labelGanttChart.setForeground(new Color(100, 100, 100));
+        labelGanttChart.setForeground(new Color(90, 90, 90));
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 24));
         labelGanttChart.setHorizontalAlignment(SwingConstants.CENTER);
         labelGanttChart.setBounds(0, 70, 900, 30); // Adjust position for visibility
@@ -504,7 +504,7 @@ public class HRRN_Algorithm implements ActionListener {
         
         // LABEL: calculations
         labelCalculations = new JLabel("CALCULATIONS");
-        labelCalculations.setForeground(new Color(100, 100, 100));
+        labelCalculations.setForeground(new Color(90, 90, 90));
         labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 24));
         labelCalculations.setHorizontalAlignment(SwingConstants.CENTER);
         labelCalculations.setBounds(0, 220, 900, 30); // Adjust position for visibility

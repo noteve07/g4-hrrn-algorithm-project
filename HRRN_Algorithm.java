@@ -59,6 +59,7 @@ public class HRRN_Algorithm implements ActionListener {
     
     // declare start panel components
     private JLabel labelTitle1;
+    private JLabel labelHeader;
     private JLabel labelDescription;
     private JLabel labelEnterNumProcesses;
     private JTextField fieldNumProcesses;
@@ -194,32 +195,40 @@ public class HRRN_Algorithm implements ActionListener {
         labelTitle1.setBounds(0, 0, 900, 40);
         panelStart.add(labelTitle1);
         
+        // LABEL: header
+        labelHeader = new JLabel("Welcome to Highest Response Ratio Next Algorithm GUI!");
+        labelHeader.setForeground(textColor);
+        labelHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));       
+        labelHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        labelHeader.setBounds(0, 100, 900, 40);
+        panelStart.add(labelHeader);
+        
         // LABEL: description 
         labelDescription = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
         labelDescription.setForeground(textColor);
         labelDescription.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        labelDescription.setBounds(55, 50, 800, 60);
+        labelDescription.setBounds(55, 200, 800, 60);
         panelStart.add(labelDescription);
 
         // LABEL: enter number of processes
         labelEnterNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
         labelEnterNumProcesses.setForeground(textColor);
         labelEnterNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        labelEnterNumProcesses.setBounds(55, 120, 300, 30);
+        labelEnterNumProcesses.setBounds(55, 250, 300, 30);
         panelStart.add(labelEnterNumProcesses);        
         
         // FIELD: gets the number of processes input (1-6)
         fieldNumProcesses = new JTextField();
         fieldNumProcesses.setForeground(textColor);
         fieldNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        fieldNumProcesses.setBounds(405, 120, 50, 30);
+        fieldNumProcesses.setBounds(405, 250, 50, 30);
         panelStart.add(fieldNumProcesses);        
         
         // BUTTON: proceed
         buttonNumProceed = new JButton("Proceed");
         buttonNumProceed.setForeground(textColor);
         buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        buttonNumProceed.setBounds(505, 120, 100, 30);
+        buttonNumProceed.setBounds(505, 250, 100, 30);
         buttonNumProceed.addActionListener(this);
         panelStart.add(buttonNumProceed);
     }
@@ -590,7 +599,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.add(labelTitle3);
         
         // LABEL: gantt chart
-        labelGanttChart = new JLabel("GANTT CHART");
+        labelGanttChart = new JLabel("HRRN - Gantt Chart");
         labelGanttChart.setForeground(new Color(90, 90, 90));
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);

@@ -223,18 +223,21 @@ public class HRRN_Algorithm implements ActionListener {
         panelStart.add(labelEnterNumProcesses);        
         
         // FIELD: gets the number of processes input (1-6)
-        fieldNumProcesses = new JTextField();
+        fieldNumProcesses = new JTextField("3");
         fieldNumProcesses.setForeground(new Color(80, 80, 80)); 
         fieldNumProcesses.setBackground(new Color(240, 240, 240)); 
-        fieldNumProcesses.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        fieldNumProcesses.setFont(new Font("Segoe UI", Font.BOLD, 24));
         fieldNumProcesses.setHorizontalAlignment(SwingConstants.CENTER);
         fieldNumProcesses.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(200, 200, 200)));
         fieldNumProcesses.setBounds(425, 300, 50, 50);       
         panelStart.add(fieldNumProcesses);
 
         
+        
         // BUTTON: +
         buttonPlus = new JButton("") {
+            private boolean isPressed = false;
+
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -242,21 +245,52 @@ public class HRRN_Algorithm implements ActionListener {
                 FontMetrics fm = g.getFontMetrics();
                 int textX = (getWidth() - fm.stringWidth("+")) / 2 + 1;
                 int textY = (getHeight() + fm.getAscent()) / 2 - 8; // Adjust -4 as needed
+
+                // Set the background color based on pressed state
+                if (isPressed) {
+                    g.setColor(new Color(220, 240, 220)); // Darken color when pressed (optional)
+                } else {
+                    g.setColor(getBackground());
+                }
+                g.fillRect(0, 0, getWidth(), getHeight()); // Fill the background
+
+                g.setColor(getForeground());
                 g.drawString("+", textX, textY);
             }
+
+            @Override
+            public void addNotify() {
+                super.addNotify();
+                // Add mouse listeners to manage the pressed state
+                addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        isPressed = true;
+                        repaint(); // Repaint to show the change
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        isPressed = false;
+                        repaint(); // Repaint to revert the change
+                    }
+                });
+            }
         };
-        
         buttonPlus.setForeground(textColor);
         buttonPlus.setBackground(new Color(240, 240, 240));
         buttonPlus.setFont(new Font("Segoe UI", Font.PLAIN, 36));
+        buttonPlus.setFocusPainted(false);
         buttonPlus.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 1, new Color(200, 200, 200)));
-        
         buttonPlus.setBounds(475, 300, 50, 50);
         buttonPlus.addActionListener(this);
         panelStart.add(buttonPlus);
         
+        
         // BUTTON: -
         buttonMinus = new JButton("") {
+            private boolean isPressed = false;
+            
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -265,20 +299,50 @@ public class HRRN_Algorithm implements ActionListener {
                 int textX = (getWidth() - fm.stringWidth("—")) / 2;
                 int textY = (getHeight() + fm.getAscent()) / 2 - 4; // Adjust -4 as needed
                 g.drawString("—", textX, textY);
+                // Set the background color based on pressed state
+                if (isPressed) {
+                    g.setColor(new Color(240, 230, 230)); // Darken color when pressed (optional)
+                } else {
+                    g.setColor(getBackground());
+                }
+                g.fillRect(0, 0, getWidth(), getHeight()); // Fill the background
+
+                g.setColor(getForeground());
+                g.drawString("—", textX, textY);
+            }
+
+            @Override
+            public void addNotify() {
+                super.addNotify();
+                // Add mouse listeners to manage the pressed state
+                addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        isPressed = true;
+                        repaint(); // Repaint to show the change
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        isPressed = false;
+                        repaint(); // Repaint to revert the change
+                    }
+                });
             }
         };
         buttonMinus.setForeground(textColor);
         buttonMinus.setBackground(new Color(240, 240, 240));
-            
+        buttonMinus.setFocusPainted(false);
         buttonMinus.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 0, new Color(200, 200, 200)));
         buttonMinus.setBounds(375, 300, 50, 50);
         buttonMinus.addActionListener(this);
         panelStart.add(buttonMinus);
         
+        
         // BUTTON: proceed
         buttonNumProceed = createModernButton("Proceed");
         buttonNumProceed.setForeground(textColor);
-        buttonNumProceed.setBackground(new Color(200, 200, 200));
+        buttonNumProceed.setBackground(new Color(210, 210, 210));
         buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
         buttonNumProceed.setBounds(400, 360, 100, 40);
         buttonNumProceed.addActionListener(this);
@@ -870,7 +934,7 @@ public class HRRN_Algorithm implements ActionListener {
         if (source == buttonPlus) {
             int num = Integer.parseInt(fieldNumProcesses.getText());
             if (num < 6) {
-                fieldNumProcesses.setText(String.valueOf(num ));
+                fieldNumProcesses.setText(String.valueOf(num + 1));
            }
         }
         

@@ -63,6 +63,7 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelDescription;
     private JLabel labelEnterNumProcesses;
     private JTextField fieldNumProcesses;
+    private JButton buttonMinus, buttonPlus;
     private JButton buttonNumProceed;
     
     // declare input table panel components
@@ -111,7 +112,7 @@ public class HRRN_Algorithm implements ActionListener {
         initializeStartPanel();
         initializeInputPanel();
         initializeOutputPanel();
-        initializeFrame();        
+        initializeFrame();      
     }
     
     
@@ -148,6 +149,8 @@ public class HRRN_Algorithm implements ActionListener {
         
         // show first panel
         panelStart.setVisible(true);
+        panelInput.setVisible(false);
+        panelOutput.setVisible(false);
     }
         
     
@@ -196,39 +199,88 @@ public class HRRN_Algorithm implements ActionListener {
         panelStart.add(labelTitle1);
         
         // LABEL: header
-        labelHeader = new JLabel("Welcome to Highest Response Ratio Next Algorithm GUI!");
+        labelHeader = new JLabel("<html>Welcome to Highest Response Ratio Next (HRRN) Algorithm<br>An Interactive GUI!</html>");
         labelHeader.setForeground(textColor);
-        labelHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));       
-        labelHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        labelHeader.setBounds(0, 100, 900, 40);
+        labelHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));       
+        labelHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelHeader.setBounds(55, 80, 900, 40);
         panelStart.add(labelHeader);
         
         // LABEL: description 
         labelDescription = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
         labelDescription.setForeground(textColor);
         labelDescription.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        labelDescription.setBounds(55, 200, 800, 60);
+        labelDescription.setBounds(55, 140, 800, 60);
         panelStart.add(labelDescription);
 
         // LABEL: enter number of processes
-        labelEnterNumProcesses = new JLabel("Enter Number of Processes (1-6): ");
-        labelEnterNumProcesses.setForeground(textColor);
-        labelEnterNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        labelEnterNumProcesses.setBounds(55, 250, 300, 30);
+        labelEnterNumProcesses = new JLabel("Number of Processes");
+        labelEnterNumProcesses.setForeground(new Color(110, 160, 130));
+        labelEnterNumProcesses.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        labelEnterNumProcesses.setVerticalAlignment(SwingConstants.CENTER);
+        labelEnterNumProcesses.setHorizontalAlignment(SwingConstants.CENTER);
+        labelEnterNumProcesses.setBounds(0, 250, 900, 40);
         panelStart.add(labelEnterNumProcesses);        
         
         // FIELD: gets the number of processes input (1-6)
         fieldNumProcesses = new JTextField();
-        fieldNumProcesses.setForeground(textColor);
-        fieldNumProcesses.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        fieldNumProcesses.setBounds(405, 250, 50, 30);
-        panelStart.add(fieldNumProcesses);        
+        fieldNumProcesses.setForeground(new Color(80, 80, 80)); 
+        fieldNumProcesses.setBackground(new Color(240, 240, 240)); 
+        fieldNumProcesses.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        fieldNumProcesses.setHorizontalAlignment(SwingConstants.CENTER);
+        fieldNumProcesses.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, new Color(200, 200, 200)));
+        fieldNumProcesses.setBounds(425, 300, 50, 50);       
+        panelStart.add(fieldNumProcesses);
+
+        
+        // BUTTON: +
+        buttonPlus = new JButton("") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setFont(new Font("Segoe UI", Font.PLAIN, 36));
+                FontMetrics fm = g.getFontMetrics();
+                int textX = (getWidth() - fm.stringWidth("+")) / 2 + 1;
+                int textY = (getHeight() + fm.getAscent()) / 2 - 8; // Adjust -4 as needed
+                g.drawString("+", textX, textY);
+            }
+        };
+        
+        buttonPlus.setForeground(textColor);
+        buttonPlus.setBackground(new Color(240, 240, 240));
+        buttonPlus.setFont(new Font("Segoe UI", Font.PLAIN, 36));
+        buttonPlus.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 1, new Color(200, 200, 200)));
+        
+        buttonPlus.setBounds(475, 300, 50, 50);
+        buttonPlus.addActionListener(this);
+        panelStart.add(buttonPlus);
+        
+        // BUTTON: -
+        buttonMinus = new JButton("") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                FontMetrics fm = g.getFontMetrics();
+                int textX = (getWidth() - fm.stringWidth("—")) / 2;
+                int textY = (getHeight() + fm.getAscent()) / 2 - 4; // Adjust -4 as needed
+                g.drawString("—", textX, textY);
+            }
+        };
+        buttonMinus.setForeground(textColor);
+        buttonMinus.setBackground(new Color(240, 240, 240));
+            
+        buttonMinus.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 0, new Color(200, 200, 200)));
+        buttonMinus.setBounds(375, 300, 50, 50);
+        buttonMinus.addActionListener(this);
+        panelStart.add(buttonMinus);
         
         // BUTTON: proceed
-        buttonNumProceed = new JButton("Proceed");
+        buttonNumProceed = createModernButton("Proceed");
         buttonNumProceed.setForeground(textColor);
+        buttonNumProceed.setBackground(new Color(200, 200, 200));
         buttonNumProceed.setFont(new Font("Segoe UI", Font.PLAIN, 18));
-        buttonNumProceed.setBounds(505, 250, 100, 30);
+        buttonNumProceed.setBounds(400, 360, 100, 40);
         buttonNumProceed.addActionListener(this);
         panelStart.add(buttonNumProceed);
     }
@@ -806,6 +858,21 @@ public class HRRN_Algorithm implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         String action = e.getActionCommand();
+        Object source = e.getSource();
+        
+        if (source == buttonMinus) {
+            int num = Integer.parseInt(fieldNumProcesses.getText());
+            if (num > 1) {
+                fieldNumProcesses.setText(String.valueOf(num - 1));
+            }
+        }
+        
+        if (source == buttonPlus) {
+            int num = Integer.parseInt(fieldNumProcesses.getText());
+            if (num < 6) {
+                fieldNumProcesses.setText(String.valueOf(num ));
+           }
+        }
         
         switch (action) {
             case "Proceed" -> {

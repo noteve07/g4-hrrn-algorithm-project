@@ -98,8 +98,8 @@ public class HRRN_Algorithm implements ActionListener {
     // private final Color backgroundColor = new Color(44, 51, 60);    
     
     // important values and arrays for scheduling calculations 
-    private int numberOfProcesses = 1;
-    private String currentNumInput = "1";
+    private int numberOfProcesses = 4;
+    private String currentNumInput = "4";
     private ArrayList<Process> processesInput = new ArrayList<>();
     private ArrayList<Process> scheduledProcesses = new ArrayList<>();
     private HashMap<String, Integer> chartData = new HashMap<>();
@@ -224,7 +224,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelStart.add(labelEnterNumProcesses);        
         
         // FIELD: gets the number of processes input (1-6)
-        fieldNumProcesses = new JTextField("3");
+        fieldNumProcesses = new JTextField("4");
         fieldNumProcesses.setForeground(new Color(80, 80, 80)); 
         fieldNumProcesses.setBackground(new Color(240, 240, 240)); 
         fieldNumProcesses.setFont(new Font("Segoe UI", Font.BOLD, 24));
@@ -290,17 +290,15 @@ public class HRRN_Algorithm implements ActionListener {
                 FontMetrics fm = g.getFontMetrics();
                 int textX = (getWidth() - fm.stringWidth("—")) / 2;
                 int textY = (getHeight() + fm.getAscent()) / 2 - 4; 
-                g.drawString("—", textX, textY);
                 
                 // set the background color based on pressed state and boundary
                 int num = Integer.parseInt(currentNumInput);
                 if (isPressed && num > 1) {
-                    g.setColor(new Color(240, 200, 200));
+                    g.setColor(new Color(245, 210, 210));
                 } else {
                     g.setColor(getBackground());
                 }
                 g.fillRect(0, 0, getWidth(), getHeight()); 
-
                 g.setColor(getForeground());
                 g.drawString("—", textX, textY);
             }
@@ -324,7 +322,7 @@ public class HRRN_Algorithm implements ActionListener {
                 });
             }
         };
-        buttonMinus.setForeground(textColor);
+        buttonMinus.setForeground(new Color(150, 150, 150));
         buttonMinus.setBackground(new Color(240, 240, 240));
         buttonMinus.setFocusPainted(false);
         buttonMinus.setBorder(BorderFactory.createMatteBorder(1, 1, 1, 0, new Color(200, 200, 200)));
@@ -349,7 +347,7 @@ public class HRRN_Algorithm implements ActionListener {
                 // set the background color based on pressed state and boundary
                 int num = Integer.parseInt(currentNumInput);
                 if (isPressed && num < 6) {
-                    g.setColor(new Color(190, 255, 190)); 
+                    g.setColor(new Color(200, 245, 200)); 
                 } else {
                     g.setColor(getBackground());
                 }
@@ -377,7 +375,7 @@ public class HRRN_Algorithm implements ActionListener {
                 });
             }
         };
-        buttonPlus.setForeground(textColor);
+        buttonPlus.setForeground(new Color(150, 150, 150));
         buttonPlus.setBackground(new Color(240, 240, 240));
         buttonPlus.setFont(new Font("Segoe UI", Font.PLAIN, 36));
         buttonPlus.setFocusPainted(false);
@@ -790,7 +788,8 @@ public class HRRN_Algorithm implements ActionListener {
         // draw the gantt chart based on the calculations from the input        
         int chartWidth = 780;
         int chartHeight = 100;
-        int totalTime = scheduledProcesses.get(numberOfProcesses - 1).endTime;
+        int len = scheduledProcesses.size();
+        int totalTime = scheduledProcesses.get(len - 1).endTime;
         int unit = (chartWidth - 15) / totalTime; // x multiplier for each rect
         
         // colors for each processes in gantt chart
@@ -811,7 +810,7 @@ public class HRRN_Algorithm implements ActionListener {
                 int x = 10; // starting x position
                 int y = 20; // y position for the gantt chart
                 
-                for (int i = 0; i < numberOfProcesses; i++) {
+                for (int i = 0; i < len; i++) {
                     // retrieve process information
                     Process process = scheduledProcesses.get(i);
                     int ID = process.id;
@@ -828,14 +827,21 @@ public class HRRN_Algorithm implements ActionListener {
                     g.drawRect(x, y, length, 50);
 
                     // fill each process rect with designated colors
-                    g.setColor(ganttChartColors[i]); 
+                    if (process.id != -1) {
+                        g.setColor(ganttChartColors[i]); 
+                    } else {
+                        g.setColor(new Color(200, 200, 200));
+                    }
                     g.fillRect(x + 1, y + 1, length - 2, 49);
 
                     // write the process name inside each process rect
                     g.setFont(new Font("Segoe UI", Font.BOLD, 12));
                     g.setColor(new Color(80, 80, 80)); 
-                    g.drawString("P" + ID, x + length / 2 - 5, y + 30);
-                    
+                    if (process.id != -1) {
+                        g.drawString("P" + ID, x + length / 2 - 5, y + 30);
+                    } else {
+                        g.drawString("IDLE", x + length / 2 - 5, y + 30);
+                    }
                     // write the start time below
                     g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                     g.setColor(new Color(100, 100, 100));
@@ -914,8 +920,34 @@ public class HRRN_Algorithm implements ActionListener {
                 }
             }            
             
-            // if no pending processes, move on to next second 
+            // if no pending processes, move on to next second, initialize idle object
             if (arrivedProcesses.isEmpty()) {
+                
+                // check first if real process already exist in array
+                if (scheduledProcesses.isEmpty()) { 
+                    // if there is no any real processes
+                    if (currentTime > 0) {          
+                        // if an existing idle already exist
+                        Process lastIdle = scheduledProcesses.get(scheduledProcesses.size()-1);
+                        lastIdle.startTime = currentTime;
+                        lastIdle.burstTime += 1;
+                    } else {                        
+                        // if no exising idle and real process
+                        Process idle = new Process(-1, 0, 1);
+                        scheduledProcesses.add(idle);
+                    }
+                } else { 
+                    // if there are existing real processes
+                    Process lastProcess = scheduledProcesses.get(scheduledProcesses.size()-1);
+                    if (lastProcess.id != -1)  {
+                        // if last process element is an idle
+                        Process idle = new Process(-1, currentTime, 1);
+                        scheduledProcesses.add(idle);
+                    } else {
+                        // if last process element is a real process
+                        lastProcess.burstTime += 1;
+                    }
+                }
                 currentTime++;
                 continue;
             }
@@ -1111,14 +1143,16 @@ public class HRRN_Algorithm implements ActionListener {
     public void displayScheduledProcessesContents() {
         // display on console for logging and debugging purposes
         for (Process process : scheduledProcesses) {
-            System.out.println("Process: " + process.id);
-            System.out.println("\tArrival Time: " + process.arrivalTime);
-            System.out.println("\tBurst Time: " + process.burstTime);
-            System.out.println("\tStart Time: " + process.startTime);
-            System.out.println("\tEnd Time: " + process.endTime);
-            System.out.println("\tWaiting Time: " + process.waitingTime);
-            System.out.println("\tTurn Around Time: " + process.turnAroundTime);
-            System.out.println("\tResponse Ratio: " + process.responseRatio + "\n");
+            if (process.id != -1) {
+                System.out.println("Process: " + process.id);
+                System.out.println("\tArrival Time: " + process.arrivalTime);
+                System.out.println("\tBurst Time: " + process.burstTime);
+                System.out.println("\tStart Time: " + process.startTime);
+                System.out.println("\tEnd Time: " + process.endTime);
+                System.out.println("\tWaiting Time: " + process.waitingTime);
+                System.out.println("\tTurn Around Time: " + process.turnAroundTime);
+                System.out.println("\tResponse Ratio: " + process.responseRatio + "\n");
+            }
         }
     }
         

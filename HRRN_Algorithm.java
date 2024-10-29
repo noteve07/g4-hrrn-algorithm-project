@@ -809,10 +809,10 @@ public class HRRN_Algorithm implements ActionListener {
                 super.paintComponent(g);
                 int x = 10; // starting x position
                 int y = 20; // y position for the gantt chart
+                int colorIndex = 0;
                 
-                for (int i = 0; i < len; i++) {
+                for (Process process : scheduledProcesses) {
                     // retrieve process information
-                    Process process = scheduledProcesses.get(i);
                     int ID = process.id;
                     int sT = process.startTime;
                     int BT = process.burstTime;
@@ -828,7 +828,8 @@ public class HRRN_Algorithm implements ActionListener {
 
                     // fill each process rect with designated colors
                     if (process.id != -1) {
-                        g.setColor(ganttChartColors[i]); 
+                        g.setColor(ganttChartColors[colorIndex]); 
+                        colorIndex++;
                     } else {
                         g.setColor(new Color(200, 200, 200));
                     }
@@ -840,11 +841,13 @@ public class HRRN_Algorithm implements ActionListener {
                     if (process.id != -1) {
                         g.drawString("P" + ID, x + length / 2 - 5, y + 30);
                     } else {
-                        g.drawString("IDLE", x + length / 2 - 5, y + 30);
+                        g.setColor(new Color(120, 120, 120));
+                        g.setFont(new Font("Segoe UI", Font.BOLD, 12));                        
+                        g.drawString("IDLE", x + length / 2 - 10, y + 30);
                     }
                     // write the start time below
-                    g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                     g.setColor(new Color(100, 100, 100));
+                    g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
                     g.drawString(String.valueOf(sT), x, y + 65);
                     
                     // move to the next position
@@ -940,8 +943,9 @@ public class HRRN_Algorithm implements ActionListener {
                     // if there are existing real processes
                     Process lastProcess = scheduledProcesses.get(scheduledProcesses.size()-1);
                     if (lastProcess.id != -1)  {
-                        // if last process element is an idle
+                        // if last process element is a real process
                         Process idle = new Process(-1, currentTime, 1);
+                        idle.startTime = currentTime;
                         scheduledProcesses.add(idle);
                     } else {
                         // if last process element is a real process
@@ -1133,7 +1137,7 @@ public class HRRN_Algorithm implements ActionListener {
     // LOGGING METHODS
     public void displayProcessesContents() {
         // display on console for logging and debugging purposes
-        for (Process process : processesInput) {
+        for (Process process : scheduledProcesses) {
             System.out.println("Process: " + process.id);
             System.out.println("\tArrival Time: " + process.arrivalTime);
             System.out.println("\tBurst Time: " + process.burstTime + "\n");

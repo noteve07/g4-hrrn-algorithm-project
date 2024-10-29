@@ -81,6 +81,15 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelGanttChart;
     private JLabel labelCalculations;
     private JLabel labelAverageWaitingTime;
+    
+    // declare calculations components
+    private JPanel panelCalculations;
+    private JLabel labelCalculationsHeader;
+    
+    // declare procedures components
+    private JPanel panelProcedures;
+    private JLabel labelResponseRatioHeader;
+    private JLabel labelResponseRatioFormula;
                
     // declare screen, cursor and other properties
     private int WIDTH = 900;
@@ -766,21 +775,93 @@ public class HRRN_Algorithm implements ActionListener {
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
         labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
-        panelOutput.add(labelGanttChart);        
-        
-        // LABEL: calculations
-        labelCalculations = new JLabel("CALCULATIONS");
-        labelCalculations.setForeground(new Color(90, 90, 90));
-        labelCalculations.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        labelCalculations.setHorizontalAlignment(SwingConstants.LEFT);
-        labelCalculations.setBounds(70, 200, 900, 30); // Adjust position for visibility
-        panelOutput.add(labelCalculations);        
-        
+        panelOutput.add(labelGanttChart);            
+    }
+    
+    
+    public void initializeCalculationsPanel() {
         // PANEL: calculations (temporary)
-        JPanel panelCalculations = new JPanel();
-        panelCalculations.setBackground(new Color(200, 200, 200));
+        panelCalculations = new JPanel();
+        panelCalculations.setBackground(new Color(230, 230, 230));
         panelCalculations.setBounds(70, 230, 755, 320);
         panelOutput.add(panelCalculations);
+        
+        // LABEL: calculations header
+        labelCalculationsHeader = new JLabel("CALCULATIONS");
+        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
+        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelCalculationsHeader.setBounds(70, 200, 900, 30); // Adjust position for visibility
+        panelOutput.add(labelCalculationsHeader);        
+        
+        
+        labelCalculationsHeader.setVisible(false);
+        panelCalculations.setVisible(false);
+    }
+    
+        
+    public void initializeProceduresPanel() {
+        // PANEL: procedures (for response ratio computations)
+        panelProcedures = new JPanel();
+        panelProcedures.setLayout(null);
+        panelProcedures.setBackground(new Color(240, 230, 240));
+        panelProcedures.setBounds(70, 230, 755, 320);
+        panelOutput.add(panelProcedures);
+        
+        // LABEL: response ratio header
+        labelResponseRatioHeader = new JLabel("RESPONSE RATIO");
+        labelResponseRatioHeader.setForeground(new Color(90, 90, 90));
+        labelResponseRatioHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelResponseRatioHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelResponseRatioHeader.setBounds(70, 200, 900, 30); // Adjust position for visibility
+        panelOutput.add(labelResponseRatioHeader);   
+        
+        // LABEL: response ratio formula
+        labelResponseRatioFormula = new JLabel("RR = [xWT+BT] / BT ");
+        labelResponseRatioFormula.setForeground(new Color(85, 85, 85));
+        labelResponseRatioFormula.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        labelResponseRatioFormula.setBounds(700, 200, 200, 30);
+        panelOutput.add(labelResponseRatioFormula);
+        
+        
+        JLabel labelRR1 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
+        labelRR1.setForeground(new Color(20, 20, 20));
+        labelRR1.setFont(new Font("Segeo UI", Font.PLAIN, 12));
+        labelRR1.setBackground(new Color(180, 180, 220));
+        labelRR1.setBounds(10, 20, 120, 30);
+        panelProcedures.add(labelRR1);
+        
+        JLabel labelRR2 = new JLabel("<html>RR2 = [(13-3) + 4] / 3<br>RR1 = <b>2.25<b></html>");
+        labelRR2.setForeground(new Color(20, 20, 20));
+        labelRR2.setFont(new Font("Segeo UI", Font.PLAIN, 12));
+        labelRR2.setBackground(new Color(180, 180, 220));
+        labelRR2.setBounds(10, 80, 120, 30);
+        panelProcedures.add(labelRR2);
+        
+        JLabel labelRR3 = new JLabel("<html>RR3 = [(16-4) + 5] / 4<br>RR1 = <b>2.25<b></html>");
+        labelRR3.setForeground(new Color(20, 20, 20));
+        labelRR3.setFont(new Font("Segeo UI", Font.PLAIN, 12));
+        labelRR3.setBackground(new Color(180, 180, 220));
+        labelRR3.setBounds(10, 140, 120, 30);
+        panelProcedures.add(labelRR3);
+        
+        JLabel labelRR4 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
+        labelRR4.setForeground(new Color(20, 20, 20));
+        labelRR4.setFont(new Font("Segeo UI", Font.PLAIN, 12));
+        labelRR4.setBackground(new Color(180, 180, 220));
+        labelRR4.setBounds(10, 200, 120, 30);
+        panelProcedures.add(labelRR4);
+        
+        JLabel labelRR5 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
+        labelRR5.setForeground(new Color(20, 20, 20));
+        labelRR5.setFont(new Font("Segeo UI", Font.PLAIN, 12));
+        labelRR5.setBackground(new Color(180, 180, 220));
+        labelRR5.setBounds(10, 260, 120, 30);
+        panelProcedures.add(labelRR5);
+        
+        
+        labelResponseRatioHeader.setVisible(true);
+        panelProcedures.setVisible(true);
     }
     
     
@@ -867,6 +948,13 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.add(panelGanttChart);
     }
     
+    public void generateCalculations() {
+        
+    }
+    
+    public void generateResponseRatioCalculaions() {
+        
+    }
       
     
 
@@ -1128,7 +1216,9 @@ public class HRRN_Algorithm implements ActionListener {
         panelInput.setVisible(false);
         panelOutput.setVisible(true);
 
-        // then show gantt chart
+        // then show output: calculations, procedures and gantt chart
+        initializeCalculationsPanel();
+        initializeProceduresPanel();
         generateGanttChart();
     }
     

@@ -73,8 +73,9 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelNumProcessesInput;
     private JLabel labelInputError;
     private JButton buttonLoad, buttonClear, buttonRun;   
-    private JTable table;
-    private DefaultTableModel model;
+    private DefaultTableModel inputModel;
+    private JTable inputTable;
+    
         
     // declare output gantt chart components
     private JLabel labelTitle3;
@@ -85,6 +86,8 @@ public class HRRN_Algorithm implements ActionListener {
     // declare calculations components
     private JPanel panelCalculations;
     private JLabel labelCalculationsHeader;
+    private DefaultTableModel outputModel;
+    private JTable outputTable;
     
     // declare procedures components
     private JPanel panelProcedures;
@@ -100,6 +103,8 @@ public class HRRN_Algorithm implements ActionListener {
     private final Color primaryColor = new Color(220, 220, 220);
     private final Color textColor = new Color(50, 50, 50);    
     private final Color backgroundColor = new Color(244, 245, 235);     
+    private Color ganttChartColors[] = new Color[6];   
+    private Color processColors[] = new Color[6];
     
     // declare color objects (dark mode)
     // private final Color primaryColor = new Color(34, 40, 44);
@@ -532,10 +537,10 @@ public class HRRN_Algorithm implements ActionListener {
         }
         
         // create the table model
-        model = new DefaultTableModel(data, columnNames);
+        inputModel = new DefaultTableModel(data, columnNames);
 
         // create the table component and render design
-        table = new JTable(model) {
+        inputTable = new JTable(inputModel) {
             @Override
             public boolean isCellEditable(int row, int column) {
                 return column != 0; // Only make cells editable for Arrival Time and Burst Time
@@ -577,28 +582,28 @@ public class HRRN_Algorithm implements ActionListener {
         };
 
         // add mouse motion listener to handle hover and deselect behavior
-        table.addMouseMotionListener(new MouseMotionAdapter() {
+        inputTable.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
-                int row = table.rowAtPoint(e.getPoint());
+                int row = inputTable.rowAtPoint(e.getPoint());
 
                 // if we hover over a different row
                 if (row != hoveredRow) {
                     // if a cell is being edited, stop editing to commit changes
-                    if (table.isEditing()) {
+                    if (inputTable.isEditing()) {
                         // deselect cell and save changes
-                        table.getCellEditor().stopCellEditing();
+                        inputTable.getCellEditor().stopCellEditing();
                     }
                     
                     // update the currently hovered row
                     hoveredRow = row; 
-                    table.clearSelection();
-                    table.repaint();
+                    inputTable.clearSelection();
+                    inputTable.repaint();
                 }
             }
         });
         
-        table.addMouseListener(new MouseAdapter() {
+        inputTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 // if from an error, hide the error message 
@@ -650,30 +655,30 @@ public class HRRN_Algorithm implements ActionListener {
         };
         
         // apply the cell editor to all columns
-        table.setDefaultEditor(Object.class, cellEditor);
+        inputTable.setDefaultEditor(Object.class, cellEditor);
 
         // customize table appearance
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        table.setRowHeight((int)(335 / data.length));
-        table.setShowGrid(false); // Remove grid lines for a clean look
-        table.setIntercellSpacing(new Dimension(0, 0));
+        inputTable.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        inputTable.setRowHeight((int)(335 / data.length));
+        inputTable.setShowGrid(false); // Remove grid lines for a clean look
+        inputTable.setIntercellSpacing(new Dimension(0, 0));
 
         // set table background colors
-        table.setBackground(new Color(229, 245, 224));
-        table.setForeground(Color.DARK_GRAY);
-        table.setSelectionBackground(new Color(183, 224, 182)); // Selection background
-        table.setSelectionForeground(Color.BLACK);
+        inputTable.setBackground(new Color(229, 245, 224));
+        inputTable.setForeground(Color.DARK_GRAY);
+        inputTable.setSelectionBackground(new Color(183, 224, 182)); // Selection background
+        inputTable.setSelectionForeground(Color.BLACK);
 
         // center the cell content
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         centerRenderer.setVerticalAlignment(JLabel.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        for (int i = 0; i < inputTable.getColumnCount(); i++) {
+            inputTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
         // customize the table header
-        JTableHeader tableHeader = table.getTableHeader();
+        JTableHeader tableHeader = inputTable.getTableHeader();
         tableHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
         tableHeader.setBackground(new Color(169, 209, 173)); // Header background
         tableHeader.setForeground(new Color(65, 65, 65)); // Header text color
@@ -681,7 +686,7 @@ public class HRRN_Algorithm implements ActionListener {
         tableHeader.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(183, 224, 182))); // Underline effect
 
         // wrap the table in a JScrollPane
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(inputTable);
         scrollPane.setBorder(BorderFactory.createMatteBorder(2, 2, 2,2, primaryColor));//Color.LIGHT_GRAY));
         scrollPane.getViewport().setBackground(new Color(229, 245, 224)); // Match background with the table
 
@@ -697,9 +702,9 @@ public class HRRN_Algorithm implements ActionListener {
     // INPUT TABLE METHODS
     public boolean validateTableInput() {
         // traverse through each rows and determine if have blank
-        for (int row = 0; row < table.getRowCount(); row++) {
-            Object artInput = table.getValueAt(row, 1);
-            Object brtInput = table.getValueAt(row, 2);
+        for (int row = 0; row < inputTable.getRowCount(); row++) {
+            Object artInput = inputTable.getValueAt(row, 1);
+            Object brtInput = inputTable.getValueAt(row, 2);
             if (artInput.equals("___") || brtInput.equals("___")) {
                 return false;
             } 
@@ -713,8 +718,8 @@ public class HRRN_Algorithm implements ActionListener {
         // parse the raw input from the table to Process objects
         for (int row = 0; row < numberOfProcesses; row++) {
             // get data from each row input
-            int artInput = Integer.parseInt(table.getValueAt(row, 1).toString());
-            int brtInput = Integer.parseInt(table.getValueAt(row, 2).toString());
+            int artInput = Integer.parseInt(inputTable.getValueAt(row, 1).toString());
+            int brtInput = Integer.parseInt(inputTable.getValueAt(row, 2).toString());
             
             // create the process object for this row
             Process process = new Process(row + 1, artInput, brtInput);
@@ -779,9 +784,94 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
+    public void generateGanttChart() {
+        // draw the gantt chart based on the calculations from the input        
+        int chartWidth = 780;
+        int chartHeight = 100;
+        int len = scheduledProcesses.size();
+        int totalTime = scheduledProcesses.get(len - 1).endTime;
+        int unit = (chartWidth - 15) / totalTime; // x multiplier for each rect
+        
+        // colors for each processes in gantt chart
+        ganttChartColors = new Color[]{
+            new Color(255, 182, 193), // Pastel Red
+            new Color(173, 216, 230), // Pastel Blue
+            new Color(240, 250, 153), // Pastel Yellow
+            new Color(144, 238, 144), // Pastel Green
+            new Color(255, 204, 153), // Pastel Orange
+            new Color(221, 160, 221)  // Pastel Purple
+        };
+
+        // generate gantt chart graphics
+        panelGanttChart = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                int x = 10; // starting x position
+                int y = 20; // y position for the gantt chart
+                int colorIndex = 0;
+                
+                for (Process process : scheduledProcesses) {
+                    // retrieve process information
+                    int ID = process.id;
+                    int sT = process.startTime;
+                    int BT = process.burstTime;
+                    
+                    // determine the length of the process rect
+                    int length = BT * unit;
+                    
+                    // draw the border - 3 pixels thick, dark gray
+                    Graphics2D g2d = (Graphics2D) g;
+                    g2d.setStroke(new BasicStroke(3)); 
+                    g.setColor(new Color(100, 100, 100));     
+                    g.drawRect(x, y, length, 50);
+
+                    // fill each process rect with designated colors
+                    if (process.id != -1) {
+                        g.setColor(ganttChartColors[colorIndex]); 
+                        processColors[process.id-1] = ganttChartColors[colorIndex];
+                        colorIndex++;
+                    } else {
+                        g.setColor(new Color(200, 200, 200));
+                    }
+                    g.fillRect(x + 1, y + 1, length - 2, 49);
+
+                    // write the process name inside each process rect
+                    g.setFont(new Font("Segoe UI", Font.BOLD, 12));
+                    g.setColor(new Color(80, 80, 80)); 
+                    if (process.id != -1) {
+                        g.drawString("P" + ID, x + length / 2 - 5, y + 30);
+                    } else {
+                        g.setColor(new Color(120, 120, 120));
+                        g.setFont(new Font("Segoe UI", Font.BOLD, 12));                        
+                        g.drawString("IDLE", x + length / 2 - 10, y + 30);
+                    }
+                    // write the start time below
+                    g.setColor(new Color(100, 100, 100));
+                    g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+                    g.drawString(String.valueOf(sT), x, y + 65);
+                    
+                    // move to the next position
+                    x += length; 
+                }
+                
+                // write the end time below at the end of the chart
+                g.drawString(String.valueOf(totalTime), x - 10, y + 65); 
+            }
+        };
+        
+        // gantt chart panel properties
+        panelGanttChart.setBackground(backgroundColor);
+        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
+        panelGanttChart.setPreferredSize(new Dimension(780, 100));
+        panelGanttChart.setBounds(60, 85, 780, 100);
+        panelOutput.add(panelGanttChart);
+    }
+    
     public void initializeCalculationsPanel() {
         // PANEL: calculations (temporary)
         panelCalculations = new JPanel();
+        panelCalculations.setLayout(null);
         panelCalculations.setBackground(new Color(230, 230, 230));
         panelCalculations.setBounds(70, 230, 755, 320);
         panelOutput.add(panelCalculations);
@@ -792,11 +882,145 @@ public class HRRN_Algorithm implements ActionListener {
         labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
         labelCalculationsHeader.setBounds(70, 200, 900, 30); // Adjust position for visibility
-        panelOutput.add(labelCalculationsHeader);        
+        panelOutput.add(labelCalculationsHeader);  
+        
+        createOutputTable();
         
         
-        labelCalculationsHeader.setVisible(false);
-        panelCalculations.setVisible(false);
+        labelCalculationsHeader.setVisible(true);
+        panelCalculations.setVisible(true);
+    }
+    
+    
+    public void createOutputTable() {
+        // columns and data for the process input table
+        System.out.println("LOG: createOutputTable()");
+        String[] columnNames = {"Process ID", "Arrival Time", "Burst Time", 
+            "sT - AT", "WT", "eT - AT", "TAT"};        
+        Object[][] data = new Object[numberOfProcesses][7];
+        
+        for (int i = 1; i <= numberOfProcesses; i++) {
+            // retrieve processes data
+            int AT = processesInput.get(i-1).arrivalTime;
+            int BT = processesInput.get(i-1).burstTime;
+            int sT = processesInput.get(i-1).startTime;
+            int eT = processesInput.get(i-1).endTime;
+            int WT = processesInput.get(i-1).waitingTime;
+            int TAT = processesInput.get(i-1).turnAroundTime;
+            
+            // input data section
+            data[i-1][0] = "P" + i;
+            data[i-1][1] = AT;
+            data[i-1][2] = BT;
+            
+            // waiting time section
+            data[i-1][3] = sT + " - " + AT;
+            data[i-1][4] = WT;
+            
+            // turn around time section
+            data[i-1][5] = eT + " - " + AT;
+            data[i-1][6] = TAT;
+        }
+        
+        // create the table model
+        DefaultTableModel outputModel = new DefaultTableModel(data, columnNames);
+
+        // create the table component and render design
+        outputTable = new JTable(outputModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                
+                // apply the hover effect to columns 1 and 2
+                if (row == hoveredRow && (column == 4 || column == 6)) {
+                    c.setBackground(processColors[row]);
+                    c.setForeground(Color.DARK_GRAY);
+                    c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                    // ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
+                } else if (row == hoveredRow) {
+                    c.setBackground(processColors[row]);
+                    c.setForeground(Color.DARK_GRAY);
+                    c.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
+                } else {                    
+                    c.setBackground(getBackground());
+                    c.setForeground(Color.DARK_GRAY);
+                    ((JComponent) c).setBorder(null); // No border for non-hovered cells
+                }
+
+                // if editing a cell, keep the hover effect intact
+                if (isEditing()) {
+                    // highlight the text field using a lighter color
+                    c.setBackground(getBackground()); 
+                    c.setForeground(Color.BLACK); 
+                    ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2));
+                }
+
+                return c;
+            }
+        };
+
+        outputTable.addMouseMotionListener(new MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(MouseEvent e) {
+                int row = outputTable.rowAtPoint(e.getPoint());
+
+                // update the currently hovered row
+                if (row != hoveredRow) {                    
+                    
+                    hoveredRow = row;                     
+                    outputTable.repaint();
+                }
+            }
+        });
+
+        // customize table appearance
+        outputTable.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        outputTable.setRowHeight((int)(267 / data.length));
+        outputTable.setShowGrid(false);
+        outputTable.setIntercellSpacing(new Dimension(0, 0));
+
+        // set table background colors
+        outputTable.setBackground(new Color(229, 245, 224));
+        outputTable.setForeground(Color.DARK_GRAY);
+        outputTable.setSelectionBackground(new Color(183, 224, 182)); // Selection background
+        outputTable.setSelectionForeground(Color.BLACK);
+
+        // center the cell content
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        centerRenderer.setVerticalAlignment(JLabel.CENTER);
+        for (int i = 0; i < outputTable.getColumnCount(); i++) {
+            outputTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // customize the table header
+        JTableHeader tableHeader = outputTable.getTableHeader();
+        tableHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        tableHeader.setBackground(new Color(169, 183, 209)); // Header background
+        tableHeader.setForeground(new Color(65, 65, 65)); // Header text color
+        tableHeader.setPreferredSize(new Dimension(100, 50));
+        tableHeader.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(183, 192, 224)));
+
+        // wrap the table in a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(outputTable);
+        scrollPane.setBorder(BorderFactory.createMatteBorder(2, 2, 2,2, primaryColor));//Color.LIGHT_GRAY));
+        scrollPane.getViewport().setBackground(new Color(229, 224, 245)); // Match background with the table
+        outputTable.setFillsViewportHeight(true);
+
+        // set the preferred size and position for the scroll pane
+        scrollPane.setPreferredSize(new Dimension(755, 320)); // Adjust size as needed
+        scrollPane.setBounds(0, 0, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
+
+        // add the scroll pane directly to the panel
+        panelCalculations.add(scrollPane); // Add scroll pane to the main panel
+        System.out.println("LOG: createOutputTable() - end");
     }
     
         
@@ -859,101 +1083,10 @@ public class HRRN_Algorithm implements ActionListener {
         labelRR5.setBounds(10, 260, 120, 30);
         panelProcedures.add(labelRR5);
         
-        
-        labelResponseRatioHeader.setVisible(true);
-        panelProcedures.setVisible(true);
-    }
-    
-    
-    public void generateGanttChart() {
-        // draw the gantt chart based on the calculations from the input        
-        int chartWidth = 780;
-        int chartHeight = 100;
-        int len = scheduledProcesses.size();
-        int totalTime = scheduledProcesses.get(len - 1).endTime;
-        int unit = (chartWidth - 15) / totalTime; // x multiplier for each rect
-        
-        // colors for each processes in gantt chart
-        Color[] ganttChartColors = {
-            new Color(255, 182, 193), // Pastel Red
-            new Color(173, 216, 230), // Pastel Blue
-            new Color(240, 250, 153), // Pastel Yellow
-            new Color(144, 238, 144), // Pastel Green
-            new Color(255, 204, 153), // Pastel Orange
-            new Color(221, 160, 221)  // Pastel Purple
-        };
 
-        // generate gantt chart graphics
-        panelGanttChart = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                int x = 10; // starting x position
-                int y = 20; // y position for the gantt chart
-                int colorIndex = 0;
-                
-                for (Process process : scheduledProcesses) {
-                    // retrieve process information
-                    int ID = process.id;
-                    int sT = process.startTime;
-                    int BT = process.burstTime;
-                    
-                    // determine the length of the process rect
-                    int length = BT * unit;
-                    
-                    // draw the border - 3 pixels thick, dark gray
-                    Graphics2D g2d = (Graphics2D) g;
-                    g2d.setStroke(new BasicStroke(3)); 
-                    g.setColor(new Color(100, 100, 100));     
-                    g.drawRect(x, y, length, 50);
-
-                    // fill each process rect with designated colors
-                    if (process.id != -1) {
-                        g.setColor(ganttChartColors[colorIndex]); 
-                        colorIndex++;
-                    } else {
-                        g.setColor(new Color(200, 200, 200));
-                    }
-                    g.fillRect(x + 1, y + 1, length - 2, 49);
-
-                    // write the process name inside each process rect
-                    g.setFont(new Font("Segoe UI", Font.BOLD, 12));
-                    g.setColor(new Color(80, 80, 80)); 
-                    if (process.id != -1) {
-                        g.drawString("P" + ID, x + length / 2 - 5, y + 30);
-                    } else {
-                        g.setColor(new Color(120, 120, 120));
-                        g.setFont(new Font("Segoe UI", Font.BOLD, 12));                        
-                        g.drawString("IDLE", x + length / 2 - 10, y + 30);
-                    }
-                    // write the start time below
-                    g.setColor(new Color(100, 100, 100));
-                    g.setFont(new Font("Segoe UI", Font.PLAIN, 12));
-                    g.drawString(String.valueOf(sT), x, y + 65);
-                    
-                    // move to the next position
-                    x += length; 
-                }
-                
-                // write the end time below at the end of the chart
-                g.drawString(String.valueOf(totalTime), x - 10, y + 65); 
-            }
-        };
-        
-        // gantt chart panel properties
-        panelGanttChart.setBackground(backgroundColor);
-        panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
-        panelGanttChart.setPreferredSize(new Dimension(780, 100));
-        panelGanttChart.setBounds(60, 85, 780, 100);
-        panelOutput.add(panelGanttChart);
-    }
-    
-    public void generateCalculations() {
-        
-    }
-    
-    public void generateResponseRatioCalculaions() {
-        
+        labelResponseRatioHeader.setVisible(false);
+        labelResponseRatioFormula.setVisible(false);
+        panelProcedures.setVisible(false);
     }
       
     
@@ -1168,38 +1301,38 @@ public class HRRN_Algorithm implements ActionListener {
         for (int row = 0; row < numberOfProcesses; row++) {
             int randomArt = arrivalTimes.get(row);
             int randomBrt = random.nextInt(1, 10);
-            table.setValueAt(randomArt, row, 1);
-            table.setValueAt(randomBrt, row, 2);
+            inputTable.setValueAt(randomArt, row, 1);
+            inputTable.setValueAt(randomBrt, row, 2);
         }
 
         // hide message if from an error
         labelInputError.setVisible(false);
-        table.repaint(); 
+        inputTable.repaint(); 
     }
     
     
     
     public void clearButtonPressed() {
         // set all cells to blank
-        for (int row = 0; row < table.getRowCount(); row++) {
-            table.setValueAt("___", row, 1);
-            table.setValueAt("___", row, 2);
+        for (int row = 0; row < inputTable.getRowCount(); row++) {
+            inputTable.setValueAt("___", row, 1);
+            inputTable.setValueAt("___", row, 2);
         }
         
         // hide message if from an error
         labelInputError.setVisible(false);
-        table.repaint(); 
+        inputTable.repaint(); 
     }
     
     
     
     public void runAlgorithmPressed() {
         // clear selection first to save user input
-        if (table.getCellEditor() != null) {
-            table.getCellEditor().stopCellEditing();
+        if (inputTable.getCellEditor() != null) {
+            inputTable.getCellEditor().stopCellEditing();
         }
-        table.clearSelection();
-        table.repaint();
+        inputTable.clearSelection();
+        inputTable.repaint();
 
         // validate if input are valid and not empty, then get the input values
         if (validateTableInput()) {

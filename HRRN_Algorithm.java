@@ -684,6 +684,8 @@ public class HRRN_Algorithm implements ActionListener {
         tableHeader.setForeground(new Color(65, 65, 65)); // Header text color
         tableHeader.setPreferredSize(new Dimension(100, 50));
         tableHeader.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(183, 224, 182))); // Underline effect
+        inputTable.getTableHeader().setResizingAllowed(false);
+        inputTable.getTableHeader().setReorderingAllowed(false);
 
         // wrap the table in a JScrollPane
         JScrollPane scrollPane = new JScrollPane(inputTable);
@@ -873,7 +875,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelCalculations = new JPanel();
         panelCalculations.setLayout(null);
         panelCalculations.setBackground(new Color(230, 230, 230));
-        panelCalculations.setBounds(70, 230, 755, 320);
+        panelCalculations.setBounds(70, 230, 755, 280);
         panelOutput.add(panelCalculations);
         
         // LABEL: calculations header
@@ -881,8 +883,26 @@ public class HRRN_Algorithm implements ActionListener {
         labelCalculationsHeader.setForeground(new Color(90, 90, 90));
         labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelCalculationsHeader.setBounds(70, 200, 900, 30); // Adjust position for visibility
+        labelCalculationsHeader.setBounds(70, 200, 300, 30); // Adjust position for visibility
         panelOutput.add(labelCalculationsHeader);  
+        
+
+        // LABEL: waiting time header
+        JLabel labelWaitingTimeHeader = new JLabel("Waiting Time");
+        labelWaitingTimeHeader.setForeground(new Color(100, 100, 100));
+        labelWaitingTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        labelWaitingTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        labelWaitingTimeHeader.setBounds(400, 200, 200, 30); // Adjust position for visibility
+        panelOutput.add(labelWaitingTimeHeader); 
+
+        // LABEL: turn around time header
+        JLabel labelTurnAroundTimeHeader = new JLabel("Turn Around Time");
+        labelTurnAroundTimeHeader.setForeground(new Color(100, 100, 100));
+        labelTurnAroundTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        labelTurnAroundTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
+        labelTurnAroundTimeHeader.setBounds(620, 200, 200, 30); // Adjust position for visibility
+        panelOutput.add(labelTurnAroundTimeHeader);  
+        
         
         createOutputTable();
         
@@ -936,32 +956,35 @@ public class HRRN_Algorithm implements ActionListener {
             public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
                 
-                // apply the hover effect to columns 1 and 2
+                // apply the hover effect
                 if (row == hoveredRow && (column == 4 || column == 6)) {
-                    c.setBackground(processColors[row]);
+                    c.setBackground(processColors[row].brighter());
                     c.setForeground(Color.DARK_GRAY);
-                    c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-                    // ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2));
+                    c.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 0, 5, 5, processColors[row]));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
-                } else if (row == hoveredRow) {
+                } else if (row == hoveredRow && (column == 3 || column == 5)) {
+                    c.setBackground(processColors[row].brighter());
+                    c.setForeground(Color.DARK_GRAY);
+                    c.setFont(new Font("Segoe UI", Font.BOLD, 16));
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, processColors[row]));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
+                } else if (row == hoveredRow && (column == 0)) {
                     c.setBackground(processColors[row]);
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 16));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
+                } else if (row == hoveredRow) {
+                    c.setBackground(processColors[row]);
+                    c.setForeground(Color.DARK_GRAY);
+                    c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); // Center the text
                 } else {                    
                     c.setBackground(getBackground());
                     c.setForeground(Color.DARK_GRAY);
+                    c.setFont(new Font("Segoe UI", Font.PLAIN, 16));
                     ((JComponent) c).setBorder(null); // No border for non-hovered cells
                 }
-
-                // if editing a cell, keep the hover effect intact
-                if (isEditing()) {
-                    // highlight the text field using a lighter color
-                    c.setBackground(getBackground()); 
-                    c.setForeground(Color.BLACK); 
-                    ((JComponent) c).setBorder(BorderFactory.createLineBorder(new Color(183, 224, 182), 2));
-                }
-
                 return c;
             }
         };
@@ -974,7 +997,8 @@ public class HRRN_Algorithm implements ActionListener {
                 // update the currently hovered row
                 if (row != hoveredRow) {                    
                     
-                    hoveredRow = row;                     
+                    hoveredRow = row;         
+                    outputTable.clearSelection(); 
                     outputTable.repaint();
                 }
             }
@@ -982,7 +1006,7 @@ public class HRRN_Algorithm implements ActionListener {
 
         // customize table appearance
         outputTable.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        outputTable.setRowHeight((int)(267 / data.length));
+        outputTable.setRowHeight((int)(275 / (data.length + 1)));
         outputTable.setShowGrid(false);
         outputTable.setIntercellSpacing(new Dimension(0, 0));
 
@@ -1002,11 +1026,13 @@ public class HRRN_Algorithm implements ActionListener {
 
         // customize the table header
         JTableHeader tableHeader = outputTable.getTableHeader();
-        tableHeader.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        tableHeader.setFont(new Font("Segoe UI", Font.BOLD  , 16));
         tableHeader.setBackground(new Color(169, 183, 209)); // Header background
         tableHeader.setForeground(new Color(65, 65, 65)); // Header text color
-        tableHeader.setPreferredSize(new Dimension(100, 50));
+        tableHeader.setPreferredSize(new Dimension(100, (int)(275 / (data.length + 1))));
         tableHeader.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(183, 192, 224)));
+        outputTable.getTableHeader().setResizingAllowed(false);
+        outputTable.getTableHeader().setReorderingAllowed(false);
 
         // wrap the table in a JScrollPane
         JScrollPane scrollPane = new JScrollPane(outputTable);
@@ -1015,7 +1041,7 @@ public class HRRN_Algorithm implements ActionListener {
         outputTable.setFillsViewportHeight(true);
 
         // set the preferred size and position for the scroll pane
-        scrollPane.setPreferredSize(new Dimension(755, 320)); // Adjust size as needed
+        scrollPane.setPreferredSize(new Dimension(755, 280)); // Adjust size as needed
         scrollPane.setBounds(0, 0, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
 
         // add the scroll pane directly to the panel

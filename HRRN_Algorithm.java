@@ -904,11 +904,11 @@ public class HRRN_Algorithm implements ActionListener {
                 g2d.setColor(new Color(150, 150, 150));
                 g2d.setStroke(new BasicStroke(2)); 
                 
-                // input data
-                g2d.drawLine(10, 25, 10, 15);
-                g2d.drawLine(10, 15, 115, 15);
-                g2d.drawLine(210, 15, 315, 15);
-                g2d.drawLine(315, 15, 315, 25);
+//                // input data
+//                g2d.drawLine(10, 25, 10, 15);
+//                g2d.drawLine(10, 15, 115, 15);
+//                g2d.drawLine(210, 15, 315, 15);
+//                g2d.drawLine(315, 15, 315, 25);
                 
                 // waiting time
                 g2d.drawLine(335, 25, 335, 15);
@@ -931,21 +931,21 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutputTable.setBounds(70, 200, 755, 400);
         panelOutput.add(panelOutputTable);
         
-//        // LABEL: output table header
-//        labelCalculationsHeader = new JLabel("OUTPUT TABLE");
-//        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
-//        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
-//        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-//        labelCalculationsHeader.setBounds(0, 0, 300, 30); // Adjust position for visibility
-//        panelOutputTable.add(labelCalculationsHeader);  
+        // LABEL: output table header
+        labelCalculationsHeader = new JLabel("OUTPUT TABLE");
+        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
+        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelCalculationsHeader.setBounds(0, 0, 300, 30); // Adjust position for visibility
+        panelOutputTable.add(labelCalculationsHeader);  
         
-        // LABEL: input data
-        JLabel labelInputData = new JLabel("Input Data");
-        labelInputData.setForeground(new Color(100, 100, 100));
-        labelInputData.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        labelInputData.setHorizontalAlignment(SwingConstants.CENTER);
-        labelInputData.setBounds(0, 0, 327, 30); // Adjust position for visibility
-        panelOutputTable.add(labelInputData);
+//        // LABEL: input data
+//        JLabel labelInputData = new JLabel("Input Data");
+//        labelInputData.setForeground(new Color(100, 100, 100));
+//        labelInputData.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+//        labelInputData.setHorizontalAlignment(SwingConstants.CENTER);
+//        labelInputData.setBounds(0, 0, 327, 30); // Adjust position for visibility
+//        panelOutputTable.add(labelInputData);
 
         // LABEL: waiting time header
         labelWaitingTimeHeader = new JLabel("Waiting Time");

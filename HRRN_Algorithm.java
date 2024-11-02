@@ -84,13 +84,17 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelAverageWaitingTime;
     private JLabel labelAverageTurnAroundTime;
     
+    // declare output table componentns
+    private JPanel panelOutputTable;
+    private JLabel labelOutputTable;
+    private DefaultTableModel outputModel;
+    private JTable outputTable;
+    
     // declare calculations components
     private JPanel panelCalculations;
     private JLabel labelCalculationsHeader;
     private JLabel labelWaitingTimeHeader;
     private JLabel labelTurnAroundTimeHeader;
-    private DefaultTableModel outputModel;
-    private JTable outputTable;
     
     // declare procedures components
     private JPanel panelProcedures;
@@ -738,6 +742,8 @@ public class HRRN_Algorithm implements ActionListener {
    
     
     
+    
+    
     // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
     public void initializeOutputPanel() {
         // create output panel component
@@ -766,11 +772,6 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.setBounds(0, 0, WIDTH, HEIGHT);
         panelOutput.setBackground(backgroundColor);
         
-        createOutputComponents();
-    }   
-    
-     
-    public void createOutputComponents() {
         // LABEL: title bar
         labelTitle3 = new JLabel("Group 4 | HRRN Algorithm");
         labelTitle3.setForeground(textColor);
@@ -785,12 +786,31 @@ public class HRRN_Algorithm implements ActionListener {
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
         labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
-        panelOutput.add(labelGanttChart);            
+        panelOutput.add(labelGanttChart);   
+    }   
+    
+    
+    public void generateOutputs() {
+        // OUTPUT (1/3): output table
+        generateOutputTable();
+        
+        // OUTPUT (2/3): calculations
+        generateCalculations();
+        
+        // OUTPUT (3/3): response ratio
+        generateResponseRatio();
+        
+        // OUTPUT: gantt chart
+        generateGanttChart();   
+        panelGanttChart.repaint();
+
+        
     }
     
     
     public void generateGanttChart() {
         // draw the gantt chart based on the calculations from the input        
+        System.out.println("LOG: generate gantt chart");
         int chartWidth = 780;
         int chartHeight = 100;
         int len = scheduledProcesses.size();
@@ -833,9 +853,10 @@ public class HRRN_Algorithm implements ActionListener {
 
                     // fill each process rect with designated colors
                     if (process.id != -1) {
-                        g.setColor(ganttChartColors[colorIndex]); 
+                        g.setColor(ganttChartColors[colorIndex % ganttChartColors.length]); 
                         processColors[process.id-1] = ganttChartColors[colorIndex];
-                        colorIndex++;
+                        colorIndex = (colorIndex + 1) % ganttChartColors.length;
+                        System.out.println("LOG: processColors Updated");
                     } else {
                         g.setColor(new Color(200, 200, 200));
                     }
@@ -873,21 +894,23 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.add(panelGanttChart);
     }
     
-    public void initializeCalculationsPanel() {
+    
+    public void generateOutputTable() {
+        System.out.println("LOG: generateOutputTable()");
         // PANEL: calculations (temporary)
-        panelCalculations = new JPanel();
-        panelCalculations.setLayout(null);
-        panelCalculations.setBackground(new Color(230, 230, 230));
-        panelCalculations.setBounds(70, 230, 755, 280);
-        panelOutput.add(panelCalculations);
+        panelOutputTable = new JPanel();
+        panelOutputTable.setLayout(null);
+        panelOutputTable.setBackground(backgroundColor);
+        panelOutputTable.setBounds(70, 200, 755, 400);
+        panelOutput.add(panelOutputTable);
         
         // LABEL: calculations header
         labelCalculationsHeader = new JLabel("CALCULATIONS");
         labelCalculationsHeader.setForeground(new Color(90, 90, 90));
         labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelCalculationsHeader.setBounds(70, 200, 300, 30); // Adjust position for visibility
-        panelOutput.add(labelCalculationsHeader);  
+        labelCalculationsHeader.setBounds(0, 0, 300, 30); // Adjust position for visibility
+        panelOutputTable.add(labelCalculationsHeader);  
         
 
         // LABEL: waiting time header
@@ -895,16 +918,16 @@ public class HRRN_Algorithm implements ActionListener {
         labelWaitingTimeHeader.setForeground(new Color(100, 100, 100));
         labelWaitingTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         labelWaitingTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        labelWaitingTimeHeader.setBounds(400, 200, 200, 30); // Adjust position for visibility
-        panelOutput.add(labelWaitingTimeHeader); 
+        labelWaitingTimeHeader.setBounds(330, 0, 200, 30); // Adjust position for visibility
+        panelOutputTable.add(labelWaitingTimeHeader); 
 
         // LABEL: turn around time header
         labelTurnAroundTimeHeader = new JLabel("Turn Around Time");
         labelTurnAroundTimeHeader.setForeground(new Color(100, 100, 100));
         labelTurnAroundTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         labelTurnAroundTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        labelTurnAroundTimeHeader.setBounds(620, 200, 200, 30); // Adjust position for visibility
-        panelOutput.add(labelTurnAroundTimeHeader);  
+        labelTurnAroundTimeHeader.setBounds(550, 0, 200, 30); // Adjust position for visibility
+        panelOutputTable.add(labelTurnAroundTimeHeader);  
         
         // LABEL: average waiting time equation
         StringBuilder aveWtEquation = new StringBuilder();
@@ -922,19 +945,25 @@ public class HRRN_Algorithm implements ActionListener {
         // calculate average waiting time
         double averageWaitingTime = (double) totalWaitingTime / numberOfProcesses;
         String formattedAveWt = String.format("%.2f", averageWaitingTime);
-
+        
         // LABEL: average waiting time equation
-        labelAverageWaitingTime = new JLabel("<html><div style='text-align: center;'>" 
-                + "Ave WT = (" + aveWtEquation + ")/" 
-                + numberOfProcesses + "<br><b>Ave WT</b> = " 
-                + formattedAveWt + "</div></html>");
+        JLabel labelAverageWtEquation = new JLabel("<html><b>Ave WT</b> = (" + aveWtEquation + ")/" + numberOfProcesses + "</html>");
+        labelAverageWtEquation.setForeground(new Color(80, 80, 80));
+        labelAverageWtEquation.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        labelAverageWtEquation.setHorizontalAlignment(SwingConstants.CENTER);
+        labelAverageWtEquation.setBounds(320, 320, 220, 30); // Adjust position for visibility
+        panelOutputTable.add(labelAverageWtEquation);
+        
+        // LABEL: average waiting time result
+        labelAverageWaitingTime = new JLabel("<html><b>Ave WT</b> = "  + formattedAveWt + "</div></html>");
         labelAverageWaitingTime.setForeground(new Color(80, 80, 80));
         labelAverageWaitingTime.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         labelAverageWaitingTime.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageWaitingTime.setBounds(390, 510, 220, 60); // Adjust position for visibility
-        panelOutput.add(labelAverageWaitingTime);
+        labelAverageWaitingTime.setBounds(320, 350, 220, 30); // Adjust position for visibility
+        panelOutputTable.add(labelAverageWaitingTime);
+        
                 
-        // LABEL: average turn around time equation
+        // LABEL: average turn around time result
         StringBuilder aveTatEquation = new StringBuilder();
         int totalTurnAroundTime = 0;
 
@@ -959,18 +988,16 @@ public class HRRN_Algorithm implements ActionListener {
         labelAverageTurnAroundTime.setForeground(new Color(80, 80, 80));
         labelAverageTurnAroundTime.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         labelAverageTurnAroundTime.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageTurnAroundTime.setBounds(610, 510, 225, 60); // Adjust position for visibility
-        panelOutput.add(labelAverageTurnAroundTime);  
+        labelAverageTurnAroundTime.setBounds(540, 320, 225, 60); // Adjust position for visibility
+        panelOutputTable.add(labelAverageTurnAroundTime);  
         
         // TABLE: output calculations
         createOutputTable();
-        
-        
-        
-        
-        // test (1/2)
-        labelCalculationsHeader.setVisible(true);
-        panelCalculations.setVisible(true);
+        for (Color color : processColors) {
+            System.out.println("LOG: print color on panelOutputTable");
+            System.out.print(color);
+        }        
+        panelOutputTable.setVisible(true);
     }
     
     
@@ -1004,8 +1031,11 @@ public class HRRN_Algorithm implements ActionListener {
             data[i-1][6] = TAT;
         }
         
+        for (Color color : processColors) {
+            System.out.print(color);
+        }
         // create the table model
-        DefaultTableModel outputModel = new DefaultTableModel(data, columnNames);
+        outputModel = new DefaultTableModel(data, columnNames);
 
         // create the table component and render design
         outputTable = new JTable(outputModel) {
@@ -1107,12 +1137,31 @@ public class HRRN_Algorithm implements ActionListener {
 
         // set the preferred size and position for the scroll pane
         scrollPane.setPreferredSize(new Dimension(755, 280)); // Adjust size as needed
-        scrollPane.setBounds(0, 0, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
+        scrollPane.setBounds(0, 30, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
 
         // add the scroll pane directly to the panel
-        panelCalculations.add(scrollPane); // Add scroll pane to the main panel
+        panelOutputTable.add(scrollPane); // Add scroll pane to the main panel
         System.out.println("LOG: createOutputTable() - end");
     }
+    
+    
+    public void generateCalculations() {
+        
+    }
+    
+    
+    public void generateResponseRatio() {
+        
+    }
+    
+    
+    
+    public void initializeCalculationsPanel() {
+        
+    }
+    
+    
+    
     
         
     public void initializeProceduresPanel() {
@@ -1442,9 +1491,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.setVisible(true);
 
         // then show output: calculations, procedures and gantt chart
-        initializeCalculationsPanel();
-        initializeProceduresPanel();
-        generateGanttChart();
+        generateOutputs();        
     }
     
     
@@ -1466,7 +1513,7 @@ public class HRRN_Algorithm implements ActionListener {
                 System.out.println("Process: " + process.id);
                 System.out.println("\tArrival Time: " + process.arrivalTime);
                 System.out.println("\tBurst Time: " + process.burstTime);
-                System.out.println("\tStart Time: " + process.startTime);
+                System.out.println("\tStart T   ime: " + process.startTime);
                 System.out.println("\tEnd Time: " + process.endTime);
                 System.out.println("\tWaiting Time: " + process.waitingTime);
                 System.out.println("\tTurn Around Time: " + process.turnAroundTime);

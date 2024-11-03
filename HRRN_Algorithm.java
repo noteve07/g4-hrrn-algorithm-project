@@ -64,6 +64,8 @@ public class HRRN_Algorithm implements ActionListener {
     JPanel panelInput;
     JPanel panelOutput;
     JPanel panelGanttChart;
+    JButton buttonRestart;
+    JButton buttonClose;
     
     // declare start panel components
     private JLabel labelTitle1;
@@ -144,6 +146,9 @@ public class HRRN_Algorithm implements ActionListener {
     private int comparisonNumber = 1;
     private HashMap<Integer, HashMap<Integer, HashMap<String, Integer>>> proceduralData = new HashMap<>();
     
+    // for managing restart gui
+    private static HRRN_Algorithm currentInstance;
+
     
     
     // CONSTRUCTOR: program starts here
@@ -152,7 +157,9 @@ public class HRRN_Algorithm implements ActionListener {
         initializeStartPanel();
         initializeInputPanel();
         initializeOutputPanel();
-        initializeFrame();      
+        initializeFrame();     
+        
+        currentInstance = this;
     }
     
     
@@ -166,7 +173,7 @@ public class HRRN_Algorithm implements ActionListener {
                 // enable anti-aliasing for smoother edges
                 Graphics2D g2 = (Graphics2D) g;
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                super.paint(g);
+                super.paint(g2);
             }
         };
         
@@ -181,6 +188,26 @@ public class HRRN_Algorithm implements ActionListener {
         frame.setResizable(false);
         frame.setBackground(backgroundColor);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        // BUTTON: restart
+        buttonRestart = new JButton();
+        buttonRestart.setOpaque(false);
+        buttonRestart.setContentAreaFilled(false);
+        buttonRestart.setBorderPainted(false);
+        buttonRestart.setFocusable(false);
+        buttonRestart.setBounds(15, 5, 30, 30);
+        buttonRestart.addActionListener(this);
+        frame.add(buttonRestart);
+
+        // BUTTON: close
+        buttonClose = new JButton();
+        buttonClose.setOpaque(false);
+        buttonClose.setContentAreaFilled(false);
+        buttonClose.setBorderPainted(false);
+        buttonClose.setFocusable(false);
+        buttonClose.setBounds(WIDTH-45, 5, 30, 30);
+        buttonClose.addActionListener(this);
+        frame.add(buttonClose);
         
         // add panels to frame
         frame.add(panelStart);
@@ -200,9 +227,12 @@ public class HRRN_Algorithm implements ActionListener {
     public void initializeStartPanel() {
         panelStart = new JPanel () {
             @Override
-            protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics g0) {
                 // draw rectangle at the top
+                Graphics2D g = (Graphics2D) g0;
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 super.paintComponent(g);
+                g.setColor(primaryColor);
                 g.setColor(primaryColor);
                 g.fillRect(0, 0, getWidth(), 40);
                 
@@ -240,17 +270,17 @@ public class HRRN_Algorithm implements ActionListener {
         
         // LABEL: header
         labelHeader = new JLabel("<html>Welcome to Highest Response Ratio Next (HRRN) Algorithm<br>An Interactive GUI!</html>");
-        labelHeader.setForeground(textColor);
-        labelHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));       
+        labelHeader.setForeground(new Color(70, 120, 100));
+        labelHeader.setFont(new Font("Segoe UI", Font.BOLD, 24));       
         labelHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelHeader.setBounds(55, 80, 900, 40);
+        labelHeader.setBounds(55, 80, 860, 80);
         panelStart.add(labelHeader);
         
         // LABEL: description 
         labelDescription = new JLabel("<html>This tool allows you to schedule processes using the HRRN algorithm.<br>Enter the number of processes and their arrival and burst times.</html>");
         labelDescription.setForeground(textColor);
         labelDescription.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        labelDescription.setBounds(55, 140, 800, 60);
+        labelDescription.setBounds(55, 160, 800, 60);
         panelStart.add(labelDescription);
 
         // LABEL: enter number of processes
@@ -442,8 +472,11 @@ public class HRRN_Algorithm implements ActionListener {
         // create input panel component
         panelInput = new JPanel() {
             @Override
-            protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics g0) {
                 // draw rectangle at the top
+                
+                Graphics2D g = (Graphics2D) g0;
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 super.paintComponent(g);
                 g.setColor(primaryColor);
                 g.fillRect(0, 0, getWidth(), 40);
@@ -767,19 +800,22 @@ public class HRRN_Algorithm implements ActionListener {
         // create output panel component
         panelOutput = new JPanel() {
             @Override
-            protected void paintComponent(Graphics g) {
+            protected void paintComponent(Graphics g0) {
                 // draw rectangle at the top
+                
+                Graphics2D g = (Graphics2D) g0;
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 super.paintComponent(g);
                 g.setColor(primaryColor);
                 g.fillRect(0, 0, getWidth(), 40);
                 
                 // minimize button
                 g.setColor(new Color(199, 202, 117));
-                g.fillRoundRect(15, 5, 30, 30, 15, 15);
+                g.fillRoundRect(15, 5, 30, 30, 20, 20);
                 
                 // close button
                 g.setColor(new Color(202, 117, 117));
-                g.fillRoundRect(getWidth()-45, 5, 30, 30, 15, 15);
+                g.fillRoundRect(getWidth()-45, 5, 30, 30, 20, 20);
                         
                 // bottom border
                 g.setColor(new Color(200, 200, 200));
@@ -849,10 +885,17 @@ public class HRRN_Algorithm implements ActionListener {
         // OUTPUT (1/2): calculations
         generateCalculations();
         panelCalculations.setVisible(true);
+        labelCalculationsHeader.setVisible(true);
         
         // OUTPUT (2/2): response ratio
-        generateResponseRatio();
-        panelResponseRatio.setVisible(false);
+        if (numberOfProcesses > 1) {
+            generateResponseRatio();
+            panelResponseRatio.setVisible(false);
+            labelResponseRatioHeader.setVisible(false);
+        } else {
+            buttonNext.setVisible(false);
+            buttonPrev.setVisible(false);
+        }
         
         // OUTPUT: gantt chart
         generateGanttChart();           
@@ -1577,6 +1620,16 @@ public class HRRN_Algorithm implements ActionListener {
         String action = e.getActionCommand();
         Object source = e.getSource();
         
+        if (source == buttonRestart) {
+            System.out.println("LOG: buttonRestart");
+            restartButtonPressed();
+        }
+        
+        if (source == buttonClose) {
+            System.out.println("LOG: buttonClose");
+            System.exit(0);
+        }
+        
         if (source == buttonMinus) {
             int num = Integer.parseInt(fieldNumProcesses.getText());
             if (num > 1) {
@@ -1635,6 +1688,14 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
+    public void restartButtonPressed() {   
+        if (currentInstance != null) {
+            frame.dispose();
+            currentInstance = null;
+        }
+        currentInstance = new HRRN_Algorithm();
+        
+    }
     
     public void proceedButtonPressed() {
         // retrieve data from the text field

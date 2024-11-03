@@ -95,6 +95,8 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelCalculationsHeader;
     private JLabel labelWaitingTimeHeader;
     private JLabel labelTurnAroundTimeHeader;
+    private JLabel labelAverageWtEquation;
+    private JLabel labelAverageTatEquation;
     
     // declare procedures components
     private JPanel panelProcedures;
@@ -125,6 +127,8 @@ public class HRRN_Algorithm implements ActionListener {
     private ArrayList<Process> scheduledProcesses = new ArrayList<>();
     private HashMap<String, Integer> chartData = new HashMap<>();
     private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
+    private StringBuilder aveWtEquation, aveTatEquation;
+    private String formattedAveWt, formattedAveTat;
     
     
     
@@ -787,17 +791,35 @@ public class HRRN_Algorithm implements ActionListener {
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
         labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
         panelOutput.add(labelGanttChart);   
+        
+        // BUTTON: prev
+        JButton buttonPrev = new JButton("prev");
+        buttonPrev.setForeground(new Color(65, 65, 65));
+        buttonPrev.setBackground(new Color(221, 223, 240));
+        buttonPrev.setFocusPainted(false);
+        buttonPrev.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 0, new Color(200, 200, 230)));
+        buttonPrev.setBounds(70, 537, 70, 30);
+        buttonPrev.addActionListener(this);
+        panelOutput.add(buttonPrev);
+        
+        // BUTTON: next
+        JButton buttonNext = new JButton("next");
+        buttonNext.setForeground(new Color(65, 65, 65));
+        buttonNext.setBackground(new Color(221, 223, 240));
+        buttonNext.setFocusPainted(false);
+        buttonNext.setBorder(BorderFactory.createMatteBorder(2, 1, 2, 2, new Color(200, 200, 230)));
+        buttonNext.setBounds(140, 537, 70, 30);
+        buttonNext.addActionListener(this);
+        panelOutput.add(buttonNext);
+        
     }   
     
     
-    public void generateOutputs() {
-        // OUTPUT (1/3): output table
-        generateOutputTable();
-        
-        // OUTPUT (2/3): calculations
+    public void generateOutputs() {        
+        // OUTPUT (1/2): calculations
         generateCalculations();
         
-        // OUTPUT (3/3): response ratio
+        // OUTPUT (2/2): response ratio
         generateResponseRatio();
         
         // OUTPUT: gantt chart
@@ -892,10 +914,10 @@ public class HRRN_Algorithm implements ActionListener {
     }
     
     
-    public void generateOutputTable() {
+    public void generateCalculations() {
         System.out.println("LOG: generateOutputTable()");
         // PANEL: output table
-        panelOutputTable = new JPanel() {
+        panelCalculations = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -903,13 +925,7 @@ public class HRRN_Algorithm implements ActionListener {
 
                 g2d.setColor(new Color(150, 150, 150));
                 g2d.setStroke(new BasicStroke(2)); 
-                
-//                // input data
-//                g2d.drawLine(10, 25, 10, 15);
-//                g2d.drawLine(10, 15, 115, 15);
-//                g2d.drawLine(210, 15, 315, 15);
-//                g2d.drawLine(315, 15, 315, 25);
-                
+
                 // waiting time
                 g2d.drawLine(335, 25, 335, 15);
                 g2d.drawLine(335, 15, 378, 15);
@@ -921,120 +937,118 @@ public class HRRN_Algorithm implements ActionListener {
                 g2d.drawLine(549, 15, 577, 15);
                 g2d.drawLine(718, 15, 746, 15);
                 g2d.drawLine(746, 15, 746, 25);                
+                
                 // reset thickness next rendering
                 g2d.setStroke(new BasicStroke(0)); 
             }
         };
-        panelOutputTable.setLayout(null);
-        panelOutputTable.setBackground(backgroundColor);
-        panelOutputTable.setBounds(70, 200, 755, 400);
-        panelOutput.add(panelOutputTable);
+        panelCalculations.setLayout(null);
+        panelCalculations.setBackground(backgroundColor);
+        panelCalculations.setBounds(70, 210, 755, 400);
+        panelOutput.add(panelCalculations);
         
         // LABEL: calculations header
         labelCalculationsHeader = new JLabel("CALCULATIONS");
         labelCalculationsHeader.setForeground(new Color(90, 90, 90));
         labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelCalculationsHeader.setBounds(0, 0, 300, 30); // Adjust position for visibility
-        panelOutputTable.add(labelCalculationsHeader);  
-        
-//        // LABEL: input data
-//        JLabel labelInputData = new JLabel("Input Data");
-//        labelInputData.setForeground(new Color(100, 100, 100));
-//        labelInputData.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-//        labelInputData.setHorizontalAlignment(SwingConstants.CENTER);
-//        labelInputData.setBounds(0, 0, 327, 30); // Adjust position for visibility
-//        panelOutputTable.add(labelInputData);
+        labelCalculationsHeader.setBounds(0, 0, 300, 30); 
+        panelCalculations.add(labelCalculationsHeader);  
 
         // LABEL: waiting time header
         labelWaitingTimeHeader = new JLabel("Waiting Time");
-//        labelWaitingTimeHeader.setBackground(new Color(100, 100, 250));
-//        labelWaitingTimeHeader.setOpaque(true);
         labelWaitingTimeHeader.setForeground(new Color(100, 100, 100));
         labelWaitingTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         labelWaitingTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        labelWaitingTimeHeader.setBounds(323, 0, 218, 30); // Adjust position for visibility
-        panelOutputTable.add(labelWaitingTimeHeader); 
+        labelWaitingTimeHeader.setBounds(323, 0, 218, 30);
+        panelCalculations.add(labelWaitingTimeHeader); 
 
         // LABEL: turn around time header
         labelTurnAroundTimeHeader = new JLabel("Turn Around Time");
-//        labelTurnAroundTimeHeader.setBackground(new Color(100, 250, 100));
-//        labelTurnAroundTimeHeader.setOpaque(true);
         labelTurnAroundTimeHeader.setForeground(new Color(100, 100, 100));
         labelTurnAroundTimeHeader.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         labelTurnAroundTimeHeader.setHorizontalAlignment(SwingConstants.CENTER);
-        labelTurnAroundTimeHeader.setBounds(539, 0, 218, 30); // Adjust position for visibility
-        panelOutputTable.add(labelTurnAroundTimeHeader);  
+        labelTurnAroundTimeHeader.setBounds(539, 0, 218, 30);
+        panelCalculations.add(labelTurnAroundTimeHeader);  
+        
+        // COMPUTE: average waiting time and turn around time equation and results
+        calculateAverageWtAndTat();
         
         // LABEL: average waiting time equation
-        StringBuilder aveWtEquation = new StringBuilder();
-        int totalWaitingTime = 0;
-
-        // build the equation and calculate total waiting time
-        for (Process process : processesInput) {
-            if (aveWtEquation.length() > 0) {
-                aveWtEquation.append("+");
-            }
-            aveWtEquation.append(process.waitingTime);
-            totalWaitingTime += process.waitingTime;
-        }
-
-        // calculate average waiting time
-        double averageWaitingTime = (double) totalWaitingTime / numberOfProcesses;
-        String formattedAveWt = String.format("%.2f", averageWaitingTime);
-        
-        // LABEL: average waiting time equation
-        JLabel labelAverageWtEquation = new JLabel("<html>(" + aveWtEquation + ")/" + numberOfProcesses + "</html>");
-        labelAverageWtEquation.setForeground(new Color(80, 80, 80));
+        labelAverageWtEquation = new JLabel("<html>(" + aveWtEquation + ")/" + numberOfProcesses + "</html>");
         labelAverageWtEquation.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         labelAverageWtEquation.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageWtEquation.setBounds(320, 315, 220, 30); // Adjust position for visibility
-        panelOutputTable.add(labelAverageWtEquation);
+        labelAverageWtEquation.setVerticalAlignment(SwingConstants.BOTTOM);
+        labelAverageWtEquation.setForeground(new Color(80, 80, 80));
+        labelAverageWtEquation.setBackground(new Color(230, 230, 255));
+        labelAverageWtEquation.setOpaque(true);
+        labelAverageWtEquation.setBorder(BorderFactory.createMatteBorder(2, 2, 0, 2, new Color(200, 200, 200)));        
+        labelAverageWtEquation.setBounds(345, 320, 180, 25); 
+        panelCalculations.add(labelAverageWtEquation);
         
         // LABEL: average waiting time result
         labelAverageWaitingTime = new JLabel("<html><b>Ave WT</b> = "  + formattedAveWt + "</div></html>");
-        labelAverageWaitingTime.setForeground(new Color(80, 80, 80));
         labelAverageWaitingTime.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         labelAverageWaitingTime.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageWaitingTime.setBounds(320, 330, 220, 30); // Adjust position for visibility
-        panelOutputTable.add(labelAverageWaitingTime);
+        labelAverageWaitingTime.setVerticalAlignment(SwingConstants.TOP);
+        labelAverageWaitingTime.setForeground(new Color(80, 80, 80));
+        labelAverageWaitingTime.setBackground(new Color(230, 230, 255));
+        labelAverageWaitingTime.setOpaque(true);
+        labelAverageWaitingTime.setBorder(BorderFactory.createMatteBorder(0, 2, 2, 2, new Color(200, 200, 200)));        
+        labelAverageWaitingTime.setBounds(345, 345, 180, 30); 
+        panelCalculations.add(labelAverageWaitingTime);
         
-                
+        // LABEL: average turn around time equation
+        labelAverageTatEquation = new JLabel("<html>(" + aveTatEquation + ")/" + numberOfProcesses + "</html>");
+        labelAverageTatEquation.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        labelAverageTatEquation.setHorizontalAlignment(SwingConstants.CENTER);
+        labelAverageTatEquation.setVerticalAlignment(SwingConstants.BOTTOM);
+        labelAverageTatEquation.setForeground(new Color(80, 80, 80));
+        labelAverageTatEquation.setBackground(new Color(230, 230, 255));
+        labelAverageTatEquation.setOpaque(true);
+        labelAverageTatEquation.setBorder(BorderFactory.createMatteBorder(2, 2, 0, 2, new Color(200, 200, 200)));        
+        labelAverageTatEquation.setBounds(555, 320, 180, 25);
+        panelCalculations.add(labelAverageTatEquation);
+        
         // LABEL: average turn around time result
-        StringBuilder aveTatEquation = new StringBuilder();
-        int totalTurnAroundTime = 0;
-
-        // build the equation and calculate total waiting time
-        for (Process process : processesInput) {
-            if (aveTatEquation.length() > 0) {
-                aveTatEquation.append("+");
-            }
-            aveTatEquation.append(process.turnAroundTime);
-            totalTurnAroundTime += process.turnAroundTime;
-        }
-
-        // calculate average waiting time
-        double averageTurnAroundTime = (double) totalTurnAroundTime / numberOfProcesses;
-        String formattedAveTat = String.format("%.2f", averageTurnAroundTime);
-
-        // LABEL: average waiting time equation
-        labelAverageTurnAroundTime = new JLabel("<html><div style='text-align: center;'>" 
-                + "(" + aveTatEquation + ")/" 
-                + numberOfProcesses + "<br><b>Ave TAT</b> = " 
-                + formattedAveTat + "</div></html>");
-        labelAverageTurnAroundTime.setForeground(new Color(80, 80, 80));
+        labelAverageTurnAroundTime = new JLabel("<html><b>Ave TAT</b> = "  + formattedAveTat + "</div></html>");
         labelAverageTurnAroundTime.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         labelAverageTurnAroundTime.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageTurnAroundTime.setBounds(540, 310, 225, 60); // Adjust position for visibility
-        panelOutputTable.add(labelAverageTurnAroundTime);  
+        labelAverageTurnAroundTime.setVerticalAlignment(SwingConstants.TOP);
+        labelAverageTurnAroundTime.setForeground(new Color(80, 80, 80));
+        labelAverageTurnAroundTime.setBackground(new Color(230, 230, 255));
+        labelAverageTurnAroundTime.setOpaque(true);
+        labelAverageTurnAroundTime.setBorder(BorderFactory.createMatteBorder(0, 2, 2, 2, new Color(200, 200, 200)));
+        labelAverageTurnAroundTime.setBounds(555, 345, 180, 30);
+        panelCalculations.add(labelAverageTurnAroundTime);
         
-        // TABLE: output calculations
+        // TABLE: output data and equations
         createOutputTable();
-        for (Color color : processColors) {
-            System.out.println("LOG: print color on panelOutputTable");
-            System.out.print(color);
-        }        
-        panelOutputTable.setVisible(true);
+    }
+    
+    
+    public void calculateAverageWtAndTat() {
+        // compute equations and results for average waiting and turn around time        
+        aveWtEquation = new StringBuilder();
+        aveTatEquation = new StringBuilder();
+        int totalWaitingTime = 0;
+        int totalTurnAroundTime = 0;
+
+        // build equations and calculate totals for waiting time and turn around time
+        for (Process process : processesInput) {
+            if (aveWtEquation.length() > 0) aveWtEquation.append("+");
+            if (aveTatEquation.length() > 0) aveTatEquation.append("+");
+
+            aveWtEquation.append(process.waitingTime);
+            aveTatEquation.append(process.turnAroundTime);
+
+            totalWaitingTime += process.waitingTime;
+            totalTurnAroundTime += process.turnAroundTime;
+        }
+        
+        // calculate and format averages
+        formattedAveWt = String.format("%.2f", (double) totalWaitingTime / numberOfProcesses);
+        formattedAveTat = String.format("%.2f", (double) totalTurnAroundTime / numberOfProcesses);
     }
     
     
@@ -1090,26 +1104,28 @@ public class HRRN_Algorithm implements ActionListener {
                     c.setBackground(processColors[row].brighter());
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 0, 5, 5, processColors[row]));
                     ((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
                     int d = ((JLabel) c).getText().length() - 1; 
                     ((JLabel) c).setText("=" + " ".repeat(9-d) + ((JLabel) c).getText());
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 0, 5, 5, processColors[row]));
                 } else if (row == hoveredRow && (column == 3 || column == 5)) {
                     c.setBackground(processColors[row].brighter());
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, processColors[row]));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); 
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, processColors[row]));
                 } else if (row == hoveredRow && (column == 0)) {
                     c.setBackground(processColors[row]);
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(null);
                 } else if (row == hoveredRow) {
                     c.setBackground(processColors[row]);
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(null);
                } else {                    
                     c.setBackground(getBackground());
                     c.setForeground(Color.DARK_GRAY);
@@ -1134,6 +1150,9 @@ public class HRRN_Algorithm implements ActionListener {
                     outputTable.repaint();
                 }
             }
+            public void mouseClicked(MouseEvent e) {
+                outputTable.clearSelection();
+            }
         });
 
         // customize table appearance
@@ -1145,9 +1164,9 @@ public class HRRN_Algorithm implements ActionListener {
         // set table background colors
         outputTable.setBackground(new Color(229, 245, 224));
         outputTable.setForeground(Color.DARK_GRAY);
-        outputTable.setSelectionBackground(new Color(183, 224, 182)); // Selection background
+        outputTable.setSelectionBackground(new Color(183, 224, 182));
         outputTable.setSelectionForeground(Color.BLACK);
-
+        
         // center the cell content
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
@@ -1177,14 +1196,10 @@ public class HRRN_Algorithm implements ActionListener {
         scrollPane.setBounds(0, 30, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); // Position scroll pane
 
         // add the scroll pane directly to the panel
-        panelOutputTable.add(scrollPane); // Add scroll pane to the main panel
+        panelCalculations.add(scrollPane); // Add scroll pane to the main panel
         System.out.println("LOG: createOutputTable() - end");
     }
     
-    
-    public void generateCalculations() {
-        
-    }
     
     
     public void generateResponseRatio() {

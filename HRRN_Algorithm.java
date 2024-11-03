@@ -978,15 +978,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelCalculations.setLayout(null);
         panelCalculations.setBackground(backgroundColor);
         panelCalculations.setBounds(70, 195, 755, 400);
-        panelOutput.add(panelCalculations);
-        
-        // LABEL: calculations header
-//        labelCalculationsHeader = new JLabel("CALCULATIONS");
-//        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
-//        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
-//        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-//        labelCalculationsHeader.setBounds(0, 0, 300, 30); 
-//        panelCalculations.add(labelCalculationsHeader);          
+        panelOutput.add(panelCalculations);         
 
         // LABEL: waiting time header
         labelWaitingTimeHeader = new JLabel("Waiting Time");

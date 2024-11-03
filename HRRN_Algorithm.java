@@ -787,6 +787,62 @@ public class HRRN_Algorithm implements ActionListener {
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
         labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
         panelOutput.add(labelGanttChart);   
+        
+        // BUTTON: next or >
+        JButton buttonChevronNext = new JButton() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Set up for drawing a custom outlined chevron (>)
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setStroke(new BasicStroke(2)); // Set line thickness
+                g2.setColor(getModel().isPressed() ? new Color(150, 150, 150) : new Color(80, 80, 80)); // Change color when pressed
+
+                // Draw an open chevron ">" using two lines
+                g2.drawLine(10, 0, 25, 30); // Top line of the chevron
+                g2.drawLine(10, 60, 25, 30); // Bottom line of the chevron
+            }
+        };
+        // set chevron button properties
+        buttonChevronNext.setFocusPainted(false); 
+        buttonChevronNext.setContentAreaFilled(false); 
+        buttonChevronNext.setBorderPainted(false); 
+        buttonChevronNext.setBounds(840, 350, 40, 100);
+        buttonChevronNext.addActionListener(this);
+        panelOutput.add(buttonChevronNext);
+        
+        
+        // BUTTON: prev or <
+        JButton buttonChevronPrev = new JButton() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+
+                // Set up for drawing a custom outlined chevron (>)
+                Graphics2D g2 = (Graphics2D) g;
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setStroke(new BasicStroke(2)); // Set line thickness
+                g2.setColor(getModel().isPressed() ? new Color(150, 150, 150) : new Color(80, 80, 80)); // Change color when pressed
+
+                // Draw an open chevron ">" using two lines
+                g2.drawLine(25, 0, 10, 30);
+                g2.drawLine(10, 30, 25, 60);
+            }
+        };
+        // set chevron button properties
+        buttonChevronPrev.setFocusPainted(false); 
+        buttonChevronPrev.setContentAreaFilled(false); 
+        buttonChevronPrev.setBorderPainted(false); 
+        buttonChevronPrev.setBounds(20, 350, 40, 100);
+        buttonChevronPrev.addActionListener(this);
+        buttonChevronPrev.setVisible(false);
+        panelOutput.add(buttonChevronPrev);
+        
+        
+
+        
     }   
     
     
@@ -927,7 +983,7 @@ public class HRRN_Algorithm implements ActionListener {
         };
         panelOutputTable.setLayout(null);
         panelOutputTable.setBackground(backgroundColor);
-        panelOutputTable.setBounds(70, 200, 755, 400);
+        panelOutputTable.setBounds(70, 210, 755, 400);
         panelOutput.add(panelOutputTable);
         
         // LABEL: calculations header
@@ -996,7 +1052,7 @@ public class HRRN_Algorithm implements ActionListener {
         labelAverageWaitingTime.setForeground(new Color(80, 80, 80));
         labelAverageWaitingTime.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         labelAverageWaitingTime.setHorizontalAlignment(SwingConstants.CENTER);
-        labelAverageWaitingTime.setBounds(320, 330, 220, 30); // Adjust position for visibility
+        labelAverageWaitingTime.setBounds(320, 335, 220, 30); // Adjust position for visibility
         panelOutputTable.add(labelAverageWaitingTime);
         
                 
@@ -1090,26 +1146,28 @@ public class HRRN_Algorithm implements ActionListener {
                     c.setBackground(processColors[row].brighter());
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 0, 5, 5, processColors[row]));
                     ((JLabel) c).setHorizontalAlignment(JLabel.LEFT);
                     int d = ((JLabel) c).getText().length() - 1; 
                     ((JLabel) c).setText("=" + " ".repeat(9-d) + ((JLabel) c).getText());
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 0, 5, 5, processColors[row]));
                 } else if (row == hoveredRow && (column == 3 || column == 5)) {
                     c.setBackground(processColors[row].brighter());
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, processColors[row]));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER); 
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(5, 5, 5, 0, processColors[row]));
                 } else if (row == hoveredRow && (column == 0)) {
                     c.setBackground(processColors[row]);
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.BOLD, 14));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(null);
                 } else if (row == hoveredRow) {
                     c.setBackground(processColors[row]);
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(null);
                } else {                    
                     c.setBackground(getBackground());
                     c.setForeground(Color.DARK_GRAY);
@@ -1134,6 +1192,9 @@ public class HRRN_Algorithm implements ActionListener {
                     outputTable.repaint();
                 }
             }
+            public void mouseClicked(MouseEvent e) {
+                outputTable.clearSelection();
+            }
         });
 
         // customize table appearance
@@ -1145,9 +1206,9 @@ public class HRRN_Algorithm implements ActionListener {
         // set table background colors
         outputTable.setBackground(new Color(229, 245, 224));
         outputTable.setForeground(Color.DARK_GRAY);
-        outputTable.setSelectionBackground(new Color(183, 224, 182)); // Selection background
+        outputTable.setSelectionBackground(new Color(183, 224, 182));
         outputTable.setSelectionForeground(Color.BLACK);
-
+        
         // center the cell content
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);

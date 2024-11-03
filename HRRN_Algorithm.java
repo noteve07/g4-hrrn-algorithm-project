@@ -5,6 +5,14 @@
  * This algorithm schedules processes based on their response ratio,
  * optimizing the waiting time and improving overall system performance.
  * 
+ * Group 4:
+ *   - AMPOSTA, Reinald Luis F. 
+ *   - BAGTAS, Miguel Grant V. 
+ *   - BARATA, Nicko James E.
+ *   - BELTRAN, Vincent Paul F. 
+ *   - DIVINO, Paul Kerry S.
+ *   - TRANATE, Jheris V.
+ * 
  */
 
 
@@ -97,11 +105,15 @@ public class HRRN_Algorithm implements ActionListener {
     private JLabel labelTurnAroundTimeHeader;
     private JLabel labelAverageWtEquation;
     private JLabel labelAverageTatEquation;
+    private JButton buttonNext;
+    private JButton buttonPrev;
     
-    // declare procedures components
-    private JPanel panelProcedures;
+    // declare response ratio components
+    private JPanel panelResponseRatio;
     private JLabel labelResponseRatioHeader;
     private JLabel labelResponseRatioFormula;
+    private DefaultTableModel responseRatioModel;
+    private JTable responseRatioTable;
                
     // declare screen, cursor and other properties
     private int WIDTH = 900;
@@ -115,20 +127,22 @@ public class HRRN_Algorithm implements ActionListener {
     private Color ganttChartColors[] = new Color[6];   
     private Color processColors[] = new Color[6];
     
-    // declare color objects (dark mode)
-    // private final Color primaryColor = new Color(34, 40, 44);
-    // private final Color textColor = new Color(235, 235, 235);
-    // private final Color backgroundColor = new Color(44, 51, 60);    
-    
-    // important values and arrays for scheduling calculations 
+    // values for number of processes input
     private int numberOfProcesses = 4;
     private String currentNumInput = "4";
+    
+    // values and array for processes scheduling computations
     private ArrayList<Process> processesInput = new ArrayList<>();
-    private ArrayList<Process> scheduledProcesses = new ArrayList<>();
-    private HashMap<String, Integer> chartData = new HashMap<>();
-    private HashMap<Integer, Process[][]> proceduralData = new HashMap<>();
+    private ArrayList<Process> scheduledProcesses = new ArrayList<>();        
+    
+    // values for average wt and tat equations
     private StringBuilder aveWtEquation, aveTatEquation;
     private String formattedAveWt, formattedAveTat;
+    
+    // values for response ratio procedures table
+    private int maxNumberOfArrived = 0;
+    private int comparisonNumber = 1;
+    private HashMap<Integer, HashMap<Integer, HashMap<String, Integer>>> proceduralData = new HashMap<>();
     
     
     
@@ -146,7 +160,7 @@ public class HRRN_Algorithm implements ActionListener {
     // INITIALIZE FRAME PROPERTIES
     public void initializeFrame() {
         // create main frame component
-        frame = new JFrame("Group 4: High Response Ratio Next Algorithm") {
+        frame = new JFrame("Group 4: Highest Response Ratio Next Algorithm") {
             @Override
             public void paint(Graphics g) {
                 // enable anti-aliasing for smoother edges
@@ -800,8 +814,16 @@ public class HRRN_Algorithm implements ActionListener {
         labelCalculationsHeader.setBounds(70, 192, 300, 30); 
         panelOutput.add(labelCalculationsHeader);  
         
+        // LABEL: response ratio header
+        labelResponseRatioHeader = new JLabel("RESPONSE RATIO");
+        labelResponseRatioHeader.setForeground(new Color(90, 90, 90));
+        labelResponseRatioHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelResponseRatioHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelResponseRatioHeader.setBounds(70, 192, 300, 30); // Adjust position for visibility
+        panelOutput.add(labelResponseRatioHeader);  
+        
         // BUTTON: prev
-        JButton buttonPrev = new JButton("prev");
+        buttonPrev = new JButton("Prev");
         buttonPrev.setForeground(new Color(65, 65, 65));
         buttonPrev.setBackground(new Color(221, 223, 240));
         buttonPrev.setFocusPainted(false);
@@ -811,7 +833,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelOutput.add(buttonPrev);
         
         // BUTTON: next
-        JButton buttonNext = new JButton("next");
+        buttonNext = new JButton("Next");
         buttonNext.setForeground(new Color(65, 65, 65));
         buttonNext.setBackground(new Color(221, 223, 240));
         buttonNext.setFocusPainted(false);
@@ -826,12 +848,15 @@ public class HRRN_Algorithm implements ActionListener {
     public void generateOutputs() {        
         // OUTPUT (1/2): calculations
         generateCalculations();
+        panelCalculations.setVisible(true);
         
         // OUTPUT (2/2): response ratio
         generateResponseRatio();
+        panelResponseRatio.setVisible(false);
         
         // OUTPUT: gantt chart
         generateGanttChart();           
+        panelGanttChart.setVisible(true);
     }
     
     
@@ -1211,88 +1236,193 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     public void generateResponseRatio() {
-        
-    }
-    
-    
-    
-    public void initializeCalculationsPanel() {
-        
-    }
-    
-    
-    
-    
-        
-    public void initializeProceduresPanel() {
         // PANEL: procedures (for response ratio computations)
-        panelProcedures = new JPanel();
-        panelProcedures.setLayout(null);
-        panelProcedures.setBackground(new Color(240, 230, 240));
-        panelProcedures.setBounds(70, 230, 755, 320);
-        panelOutput.add(panelProcedures);
-        
-        // LABEL: response ratio header
-        labelResponseRatioHeader = new JLabel("RESPONSE RATIO");
-        labelResponseRatioHeader.setForeground(new Color(90, 90, 90));
-        labelResponseRatioHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        labelResponseRatioHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelResponseRatioHeader.setBounds(70, 200, 900, 30); // Adjust position for visibility
-        panelOutput.add(labelResponseRatioHeader);   
+        panelResponseRatio = new JPanel();
+        panelResponseRatio.setLayout(null);
+        panelResponseRatio.setBackground(backgroundColor);
+        panelResponseRatio.setBounds(70, 195, 755, 400);
+        panelOutput.add(panelResponseRatio); 
         
         // LABEL: response ratio formula
-        labelResponseRatioFormula = new JLabel("RR = [xWT+BT] / BT ");
+        labelResponseRatioFormula = new JLabel("RRn = [(LPeT - AT) +BT] / BT ");
         labelResponseRatioFormula.setForeground(new Color(85, 85, 85));
         labelResponseRatioFormula.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        labelResponseRatioFormula.setBounds(700, 200, 200, 30);
-        panelOutput.add(labelResponseRatioFormula);
+        labelResponseRatioFormula.setBounds(400, 0, 200, 30);
+        panelResponseRatio.add(labelResponseRatioFormula);
         
-        
-        JLabel labelRR1 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
-        labelRR1.setForeground(new Color(20, 20, 20));
-        labelRR1.setFont(new Font("Segeo UI", Font.PLAIN, 12));
-        labelRR1.setBackground(new Color(180, 180, 220));
-        labelRR1.setBounds(10, 20, 120, 30);
-        panelProcedures.add(labelRR1);
-        
-        JLabel labelRR2 = new JLabel("<html>RR2 = [(13-3) + 4] / 3<br>RR1 = <b>2.25<b></html>");
-        labelRR2.setForeground(new Color(20, 20, 20));
-        labelRR2.setFont(new Font("Segeo UI", Font.PLAIN, 12));
-        labelRR2.setBackground(new Color(180, 180, 220));
-        labelRR2.setBounds(10, 80, 120, 30);
-        panelProcedures.add(labelRR2);
-        
-        JLabel labelRR3 = new JLabel("<html>RR3 = [(16-4) + 5] / 4<br>RR1 = <b>2.25<b></html>");
-        labelRR3.setForeground(new Color(20, 20, 20));
-        labelRR3.setFont(new Font("Segeo UI", Font.PLAIN, 12));
-        labelRR3.setBackground(new Color(180, 180, 220));
-        labelRR3.setBounds(10, 140, 120, 30);
-        panelProcedures.add(labelRR3);
-        
-        JLabel labelRR4 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
-        labelRR4.setForeground(new Color(20, 20, 20));
-        labelRR4.setFont(new Font("Segeo UI", Font.PLAIN, 12));
-        labelRR4.setBackground(new Color(180, 180, 220));
-        labelRR4.setBounds(10, 200, 120, 30);
-        panelProcedures.add(labelRR4);
-        
-        JLabel labelRR5 = new JLabel("<html>RR1 = [(9-4) + 2] / 4<br>RR1 = <b>2.25<b></html>");
-        labelRR5.setForeground(new Color(20, 20, 20));
-        labelRR5.setFont(new Font("Segeo UI", Font.PLAIN, 12));
-        labelRR5.setBackground(new Color(180, 180, 220));
-        labelRR5.setBounds(10, 260, 120, 30);
-        panelProcedures.add(labelRR5);
-        
-
-        labelResponseRatioHeader.setVisible(false);
-        labelResponseRatioFormula.setVisible(false);
-        panelProcedures.setVisible(false);
+        // TABLE: reponse ratio table
+        createResponseRatioTable();
     }
-      
+    
+    public void createResponseRatioTable() {
+        System.out.println("LOG: createResponseRatioTable()");
+
+        String[] columnNames = new String[maxNumberOfArrived + 1];
+        Object[][] data = new Object[numberOfProcesses - 1][maxNumberOfArrived + 1]; // Adjust for max number of arrived
+
+        // fill the data
+        for (int i = 0; i < numberOfProcesses - 1; i++) {
+            // fill the first column with lpet
+            int LPeT = scheduledProcesses.get(i).endTime;
+            data[i][0] = "LPeT = " + LPeT;
+
+            // get the hashmap for the current comparison number
+            HashMap<Integer, HashMap<String, Integer>> arrivedProcesses = proceduralData.get(i + 1);
+            
+            int index = maxNumberOfArrived;
+            double maxResponseRatio = Double.NEGATIVE_INFINITY;
+            int maxIndex = -1; // track the index of the highest response ratio
+
+            // retrieve data of each process candidate in current comparison
+            for (Integer processId : arrivedProcesses.keySet()) {
+                HashMap<String, Integer> processData = arrivedProcesses.get(processId);
+                if (processData != null) {
+                    // extract waiting time, arrivalti
+                    int wT = processData.get("wT");
+                    int aT = processData.get("aT");
+                    int bT = processData.get("bT");
+
+                    // calculate response ratio
+                    double responseRatio = (double) (wT + bT) / bT;
+
+                    // store the equation in the data array
+                    String equation = "<html>RR" + processId + " = [(" + LPeT + " - " + aT + ") + " + bT + "] / " + bT 
+                            + "<br>" + "RR" + processId + " = " + String.format("%.2f", responseRatio) + "</html>";
+
+                    // check if this is the maximum response ratio
+                    if (responseRatio > maxResponseRatio) {
+                        maxResponseRatio = responseRatio;
+                        maxIndex = index; // Store the index for asterisk placement
+                    }
+
+                    data[i][index] = equation; // Store the calculated response ratio in the data array
+                    index--; // Move to the previous column
+                }
+
+            }
+
+            // Place an asterisk in the equation with the highest response ratio
+            if (maxIndex != -1) {
+                String highestEquation = (String) data[i][maxIndex];
+                if (highestEquation != null) {
+                    data[i][maxIndex] = highestEquation + " *"; // Add asterisk
+                }
+            }
+        }
+
+        // Create the table model without column names
+        responseRatioModel = new DefaultTableModel(data, columnNames);
+
+        // Create the table component
+        responseRatioTable = new JTable(responseRatioModel) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                                
+                // highlight the cell with the asterisk
+                if (data[row][column] instanceof String && ((String) data[row][column]).contains("*")) {
+                    c.setBackground(ganttChartColors[row+1].brighter()); 
+                    if (maxNumberOfArrived > 4) {
+                        c.setFont(new Font("Segoe UI", Font.BOLD, 9));
+                    } else {
+                        c.setFont(new Font("Segoe UI", Font.BOLD, 11));
+                    }
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(4, 4, 4, 4, ganttChartColors[row+1]));
+                } else if (column != 0 && data[row][column] instanceof String && !((String) data[row][column]).isEmpty()) {
+                    
+                    c.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+                    c.setBackground(new Color(235, 240, 235));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(2, 2, 2, 2, new Color(225, 230, 225)));
+                } else if (column == 0) {
+                    c.setBackground(getBackground());
+                    c.setFont(new Font("Segoe UI", Font.BOLD, 14));
+                    c.setForeground(new Color(90, 90, 90));
+                    ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
+                    ((JComponent) c).setBorder(BorderFactory.createMatteBorder(0, 0, 0, 3, new Color(200, 200, 210)));
+                } else {
+                    c.setBackground(getBackground());
+                    ((JComponent) c).setBorder(null);
+                }
+
+                return c;
+            }
+        };
+        
+        // set custom renderer for all columns to enable multi-line text
+        for (int j = 0; j < responseRatioTable.getColumnCount(); j++) {
+            responseRatioTable.getColumnModel().getColumn(j).setCellRenderer(new DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                    JTextArea textArea = new JTextArea();
+                    textArea.setLineWrap(false);
+                    textArea.setWrapStyleWord(true);
+                    textArea.setOpaque(false);
+                    textArea.setEditable(false);
+                    textArea.setText(value != null ? value.toString() : "");
+
+                    if (isSelected) {
+                        textArea.setBackground(table.getSelectionBackground());
+                        textArea.setForeground(table.getSelectionForeground());
+                    } else {
+                        textArea.setBackground(table.getBackground());
+                        textArea.setForeground(table.getForeground());
+                    }
+
+                    return textArea;
+                }
+            });
+        }
+
+        // customize table appearance
+        responseRatioTable.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        responseRatioTable.setRowHeight((int)(275 / (data.length)));
+        responseRatioTable.setShowGrid(false);
+        responseRatioTable.setIntercellSpacing(new Dimension(10, 10));
+
+        // set table background colors
+        responseRatioTable.setBackground(new Color(234, 250, 239));
+        responseRatioTable.setForeground(Color.DARK_GRAY);
+        responseRatioTable.setSelectionBackground(new Color(183, 224, 182));
+        responseRatioTable.setSelectionForeground(Color.DARK_GRAY);
+        responseRatioTable.setTableHeader(null);
+
+        // center the cell content
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        centerRenderer.setVerticalAlignment(JLabel.CENTER);
+        for (int i = 0; i < responseRatioTable.getColumnCount(); i++) {
+            responseRatioTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+        }
+
+        // wrap the table in a JScrollPane
+        JScrollPane scrollPane = new JScrollPane(responseRatioTable);
+        scrollPane.setBorder(BorderFactory.createMatteBorder(3, 3, 3, 3, new Color(200, 200, 210)));
+        scrollPane.getViewport().setBackground(new Color(234, 250, 239));
+        responseRatioTable.setFillsViewportHeight(true);
+
+        // Set the preferred size and position for the scroll pane
+        scrollPane.setPreferredSize(new Dimension(755, 290)); // Adjust size as needed
+        scrollPane.setBounds(0, 30, scrollPane.getPreferredSize().width, scrollPane.getPreferredSize().height); 
+
+        // Add the scroll pane directly to the panel
+        panelResponseRatio.add(scrollPane); // Add scroll pane to the main panel
+        System.out.println("LOG: createResponseRatioTable() - end");
+    }
+
+
+
+
     
 
     
-    // MAIN COMPUTATION METHODS FOR HTTN SCHEDULING ALGORITHM
+    // MAIN COMPUTATION METHODS FOR HRRN SCHEDULING ALGORITHM
     public ArrayList<Process> sortByArrivalTime(ArrayList<Process> processes) {
         // initialize local variables
         int minIndex;
@@ -1378,9 +1508,10 @@ public class HRRN_Algorithm implements ActionListener {
             }
             
             // STEP 3: compute and look for the highest response ratio among each pending processes
+            int LPeT = currentTime;
             Process selectedProcess = arrivedProcesses.get(0);
             for (Process process : arrivedProcesses) {
-                process.waitingTime = currentTime - process.arrivalTime;
+                process.waitingTime = LPeT - process.arrivalTime;
                 process.responseRatio = (double) (process.waitingTime + process.burstTime) / process.burstTime;
                 
                 if (process.responseRatio > selectedProcess.responseRatio) {
@@ -1399,9 +1530,11 @@ public class HRRN_Algorithm implements ActionListener {
             scheduledProcesses.add(selectedProcess);
             processes.remove(selectedProcess);
             
+            
             // add essential information to procedural data for visualization
-            Process[][] executionInfo = new Process[][]{arrivedProcesses.toArray(new Process[0]), {selectedProcess}};
-            proceduralData.put(currentTime, executionInfo);
+            if (scheduledProcesses.size() > 1) {
+                collectProceduralData(arrivedProcesses, selectedProcess);
+            }
             
             // LOGS
             System.out.print("LOG: [" + currentTime + "] {");
@@ -1418,8 +1551,30 @@ public class HRRN_Algorithm implements ActionListener {
         System.out.println(processesInput.size());
         System.out.println("\n\t==========\n");
         displayScheduledProcessesContents();
+        System.out.println("\n\t==========\n");
+        displayProceduralData();
     }
     
+    
+    public void collectProceduralData(ArrayList<Process> arrivedProcesses, Process selectedProcess) {
+        // get maximum arrived processes
+        if (arrivedProcesses.size() > maxNumberOfArrived) {
+                maxNumberOfArrived = arrivedProcesses.size();
+            }
+            
+        // get data of each process candidates
+        HashMap<Integer, HashMap<String, Integer>> candidatesData = new HashMap<>();
+        for (Process process : arrivedProcesses) {
+            HashMap<String, Integer> processData = new HashMap<>();
+            processData.put("wT", process.waitingTime);
+            processData.put("aT", process.arrivalTime);
+            processData.put("bT", process.burstTime);
+            candidatesData.put(process.id, processData);
+        }             
+        
+        proceduralData.put(comparisonNumber, candidatesData);
+        comparisonNumber++;
+    }
   
                
   
@@ -1465,6 +1620,24 @@ public class HRRN_Algorithm implements ActionListener {
             case "Run Algorithm" -> {
                 System.out.println("LOG: Run Algorithm Button");
                 runAlgorithmPressed();
+            }
+            
+            case "Next" -> {
+                System.out.println("LOG: Next Button");
+                panelCalculations.setVisible(false);
+                labelCalculationsHeader.setVisible(false);
+                panelResponseRatio.setVisible(true);
+                labelResponseRatioHeader.setVisible(true);
+            }
+            
+            case "Prev" -> {
+                System.out.println("LOG: Prev Button");
+                panelCalculations.setVisible(true);
+                labelCalculationsHeader.setVisible(true);
+                panelResponseRatio.setVisible(false);
+                labelResponseRatioHeader.setVisible(false);
+                
+                
             }
         }
     }
@@ -1581,8 +1754,27 @@ public class HRRN_Algorithm implements ActionListener {
             }
         }
     }
-        
     
+    public void displayProceduralData() {
+        for (Map.Entry<Integer, HashMap<Integer, HashMap<String, Integer>>> outerEntry : proceduralData.entrySet()) {
+            Integer outerKey = outerEntry.getKey();
+            System.out.println("Comparison Number: " + outerKey);
+
+            HashMap<Integer, HashMap<String, Integer>> innerMap = outerEntry.getValue();
+            for (Map.Entry<Integer, HashMap<String, Integer>> innerEntry : innerMap.entrySet()) {
+                Integer innerKey = innerEntry.getKey();
+                System.out.println("\tProcess ID: " + innerKey);
+
+                HashMap<String, Integer> innermostMap = innerEntry.getValue();
+                for (Map.Entry<String, Integer> innermostEntry : innermostMap.entrySet()) {
+                    String innermostKey = innermostEntry.getKey();
+                    Integer value = innermostEntry.getValue();
+                    System.out.println("\t\t" + innermostKey + " : " + value);
+                }
+            }
+        }
+    }
+        
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {

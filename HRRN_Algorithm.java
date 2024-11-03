@@ -789,8 +789,16 @@ public class HRRN_Algorithm implements ActionListener {
         labelGanttChart.setForeground(new Color(90, 90, 90));
         labelGanttChart.setFont(new Font("Segoe UI", Font.BOLD, 18));
         labelGanttChart.setHorizontalAlignment(SwingConstants.LEFT);
-        labelGanttChart.setBounds(70, 70, 900, 30); // Adjust position for visibility
+        labelGanttChart.setBounds(70, 60, 900, 30); // Adjust position for visibility
         panelOutput.add(labelGanttChart);   
+        
+        // LABEL: calculations header
+        labelCalculationsHeader = new JLabel("CALCULATIONS");
+        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
+        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
+        labelCalculationsHeader.setBounds(70, 192, 300, 30); 
+        panelOutput.add(labelCalculationsHeader);  
         
         // BUTTON: prev
         JButton buttonPrev = new JButton("prev");
@@ -798,7 +806,7 @@ public class HRRN_Algorithm implements ActionListener {
         buttonPrev.setBackground(new Color(221, 223, 240));
         buttonPrev.setFocusPainted(false);
         buttonPrev.setBorder(BorderFactory.createMatteBorder(2, 2, 2, 0, new Color(200, 200, 230)));
-        buttonPrev.setBounds(70, 537, 70, 30);
+        buttonPrev.setBounds(70, 527, 70, 30);
         buttonPrev.addActionListener(this);
         panelOutput.add(buttonPrev);
         
@@ -808,7 +816,7 @@ public class HRRN_Algorithm implements ActionListener {
         buttonNext.setBackground(new Color(221, 223, 240));
         buttonNext.setFocusPainted(false);
         buttonNext.setBorder(BorderFactory.createMatteBorder(2, 1, 2, 2, new Color(200, 200, 230)));
-        buttonNext.setBounds(140, 537, 70, 30);
+        buttonNext.setBounds(140, 527, 70, 30);
         buttonNext.addActionListener(this);
         panelOutput.add(buttonNext);
         
@@ -909,7 +917,7 @@ public class HRRN_Algorithm implements ActionListener {
         panelGanttChart.setBackground(backgroundColor);
         panelGanttChart.setAlignmentX(Component.CENTER_ALIGNMENT);
         panelGanttChart.setPreferredSize(new Dimension(780, 100));
-        panelGanttChart.setBounds(60, 85, 780, 100);
+        panelGanttChart.setBounds(60, 75, 780, 100);
         panelOutput.add(panelGanttChart);
     }
     
@@ -944,16 +952,16 @@ public class HRRN_Algorithm implements ActionListener {
         };
         panelCalculations.setLayout(null);
         panelCalculations.setBackground(backgroundColor);
-        panelCalculations.setBounds(70, 210, 755, 400);
+        panelCalculations.setBounds(70, 195, 755, 400);
         panelOutput.add(panelCalculations);
         
         // LABEL: calculations header
-        labelCalculationsHeader = new JLabel("CALCULATIONS");
-        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
-        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
-        labelCalculationsHeader.setBounds(0, 0, 300, 30); 
-        panelCalculations.add(labelCalculationsHeader);  
+//        labelCalculationsHeader = new JLabel("CALCULATIONS");
+//        labelCalculationsHeader.setForeground(new Color(90, 90, 90));
+//        labelCalculationsHeader.setFont(new Font("Segoe UI", Font.BOLD, 18));
+//        labelCalculationsHeader.setHorizontalAlignment(SwingConstants.LEFT);
+//        labelCalculationsHeader.setBounds(0, 0, 300, 30); 
+//        panelCalculations.add(labelCalculationsHeader);          
 
         // LABEL: waiting time header
         labelWaitingTimeHeader = new JLabel("Waiting Time");
@@ -1131,7 +1139,7 @@ public class HRRN_Algorithm implements ActionListener {
                     c.setForeground(Color.DARK_GRAY);
                     c.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                     ((JLabel) c).setHorizontalAlignment(JLabel.CENTER);
-                    ((JComponent) c).setBorder(null); // No border for non-hovered cells
+                    ((JComponent) c).setBorder(null);
                 }
                 return c;
             }

@@ -355,21 +355,21 @@ public class HRRN_Algorithm implements ActionListener {
             protected void paintComponent(Graphics g) {
                 // draw the minus icon
                 super.paintComponent(g);
-                g.setFont(new Font("Segoe UI", Font.BOLD, 14));
-                FontMetrics fm = g.getFontMetrics();
-                int textX = (getWidth() - fm.stringWidth("—")) / 2;
-                int textY = (getHeight() + fm.getAscent()) / 2 - 4; 
+                Graphics2D g2d = (Graphics2D) g;
                 
                 // set the background color based on pressed state and boundary
                 int num = Integer.parseInt(currentNumInput);
                 if (isPressed && num > 1) {
-                    g.setColor(new Color(245, 210, 210));
+                    g2d.setColor(new Color(245, 210, 210));
                 } else {
-                    g.setColor(getBackground());
+                    g2d.setColor(getBackground());
                 }
-                g.fillRect(0, 0, getWidth(), getHeight()); 
+                
+                g2d.fillRect(0, 0, getWidth(), getHeight()); 
+                g2d.setStroke(new BasicStroke(2)); 
                 g.setColor(getForeground());
-                g.drawString("—", textX, textY);
+                g2d.drawLine(19, 26, 31, 26);
+                g2d.setStroke(new BasicStroke(1)); 
             }
 
             @Override

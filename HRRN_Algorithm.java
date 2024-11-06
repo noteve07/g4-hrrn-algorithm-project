@@ -795,7 +795,7 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     
-    // PANEL 2: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
+    // PANEL 3: OUTPUT OF GANTT CHART, CALCULATIONS AND PROCEDURES
     public void initializeOutputPanel() {
         // create output panel component
         panelOutput = new JPanel() {

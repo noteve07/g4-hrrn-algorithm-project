@@ -1534,7 +1534,7 @@ public class HRRN_Algorithm implements ActionListener {
                         idle.startTime = currentTime;
                         scheduledProcesses.add(idle);
                     } else {
-                        // if last process element is a real process
+                        // if last process element is an idle 
                         lastProcess.burstTime += 1;
                     }
                 }

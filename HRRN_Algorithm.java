@@ -991,7 +991,7 @@ public class HRRN_Algorithm implements ActionListener {
     
     
     public void generateCalculations() {
-        System.out.println("LOG: generateOutputTable()");
+        System.out.println("LOG: generateCalculations()");
         // PANEL: output table
         panelCalculations = new JPanel() {
             @Override
